@@ -25,6 +25,7 @@ import proj.concert.common.dto.PerformerDTO;
 @Table(name = "CONCERT")
 public class Concert implements Comparable<Concert> {
     // TODO Implement this class.
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
