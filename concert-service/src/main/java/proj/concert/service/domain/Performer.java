@@ -4,12 +4,28 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import proj.concert.common.types.Genre;
 
+import javax.annotation.processing.Generated;
+import javax.persistence.*;
+
+@Entity
+@Table(name = "PERFORMER")
 public class Performer implements Comparable<Performer> {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
     private Long id;
+
+    @Column(name = "NAME")
     private String name;
+
+    @Column(name = "IMAGENAME")
     private String imageName;
+
+    @Column(name = "GENRE")
     private Genre genre;
+
+    @Column(name = "BLURB")
     private String blurb;
 
     public Performer() {
