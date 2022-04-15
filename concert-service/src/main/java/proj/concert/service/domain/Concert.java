@@ -9,36 +9,16 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import proj.concert.common.dto.PerformerDTO;
 
-/**
- * DTO class to represent concerts.
- * <p>
- * A ConcertDTO describes a concert in terms of
- * id           the unique identifier for a concert.
- * title        the concert's title.
- * dates        the concert's scheduled dates and times (represented as a Set of LocalDateTime instances).
- * imageName    an image name for the concert.
- * performers   the performers in the concert
- * blurb        the concert's description
- */
-
-@Entity
-@Table(name = "CONCERT")
 public class Concert implements Comparable<Concert> {
     // TODO Implement this class.
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Column(name = "TITLE")
     private String title;
 
-    @Column(name = "IMAGENAME")
     private String imageName;
 
-    @Column(name = "BLRB")
-    private String blrb;
+    private String blurb;
 
     private List<LocalDateTime> dates = new ArrayList<>();
 
@@ -47,12 +27,16 @@ public class Concert implements Comparable<Concert> {
     public Concert() {
     }
 
-    public Concert(String title, String imageName, String blrb, List<Performer> performers, List<LocalDateTime> dates) {
+    public Concert(Long id, String title, String imageName, String blurb) {
+        this.id = id;
         this.title = title;
         this.imageName = imageName;
-        this.blrb = blrb;
-        this.performers = performers;
-        this.dates = dates;
+        this.blurb = blurb;
+    }
+
+    public Concert(String title, String imageName) {
+        this.title = title;
+        this.imageName = imageName;
     }
 
     public Long getId() {
@@ -79,12 +63,12 @@ public class Concert implements Comparable<Concert> {
         this.imageName = imageName;
     }
 
-    public String getBlrb() {
-        return blrb;
+    public String getBlurb() {
+        return blurb;
     }
 
-    public void setBlrb(String blrb) {
-        this.blrb = blrb;
+    public void setBlurb(String blurb) {
+        this.blurb = blurb;
     }
 
     public Set<LocalDateTime> getDates() {
@@ -100,8 +84,8 @@ public class Concert implements Comparable<Concert> {
         buffer.append(title);
         buffer.append(", imageName: ");
         buffer.append(imageName);
-        buffer.append(", blrb: ");
-        buffer.append(blrb);
+        buffer.append(", blurb: ");
+        buffer.append(blurb);
         //TODO Add dates and performers for testing purposes
 
         return buffer.toString();
