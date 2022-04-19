@@ -42,7 +42,8 @@ public class ConcertResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createConcert(Concert concert) {
+    public Response createConcert(ConcertDTO dtoConcert) {
+        Concert concert = ConcertMapper.toDomainModel(dtoConcert);
         try {
             em.getTransaction().begin();
             em.persist(concert);
@@ -95,7 +96,7 @@ public class ConcertResource {
     public Response deleteAllConcerts() {
         try {
             em.getTransaction().begin();
-            em.createQuery("DELETE FROM Concert");
+//            em.createQuery("DELETE FROM Concert");
             em.getTransaction().commit();
         } finally {
             em.close();
