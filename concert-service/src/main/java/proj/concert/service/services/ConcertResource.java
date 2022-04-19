@@ -40,69 +40,69 @@ public class ConcertResource {
 
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response createConcert(ConcertDTO dtoConcert) {
-        Concert concert = ConcertMapper.toDomainModel(dtoConcert);
-        try {
-            em.getTransaction().begin();
-            em.persist(concert);
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
-
-        return Response.created(URI.create("/concerts/" + concert.getId()))
-                .build();
-    }
-
-    @PUT
-    public Response updateConcert(Concert concert) {
-        try {
-            em.getTransaction().begin();
-            em.merge(concert);
-            em.getTransaction().commit();
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        } finally {
-            em.close();
-        }
-
-        return Response.noContent().build();
-    }
-
-    @DELETE
-    @Path("/{id}")
-    public Response deleteSingleConcert(@PathParam("id") long id) {
-        Concert concert;
-        try {
-            em.getTransaction().begin();
-            concert = em.find(Concert.class, id);
-            if(concert == null) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-
-            em.remove(concert);
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
-
-        return Response.noContent().build();
-    }
-
-
-    @DELETE
-    public Response deleteAllConcerts() {
-        try {
-            em.getTransaction().begin();
-//            em.createQuery("DELETE FROM Concert");
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
-
-        return Response.noContent().build();
-    }
+//    @POST
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public Response createConcert(ConcertDTO dtoConcert) {
+//        Concert concert = ConcertMapper.toDomainModel(dtoConcert);
+//        try {
+//            em.getTransaction().begin();
+//            em.persist(concert);
+//            em.getTransaction().commit();
+//        } finally {
+//            em.close();
+//        }
+//
+//        return Response.created(URI.create("/concerts/" + concert.getId()))
+//                .build();
+//    }
+//
+//    @PUT
+//    public Response updateConcert(Concert concert) {
+//        try {
+//            em.getTransaction().begin();
+//            em.merge(concert);
+//            em.getTransaction().commit();
+//        } catch (IllegalArgumentException e) {
+//            throw new WebApplicationException(Response.Status.NOT_FOUND);
+//        } finally {
+//            em.close();
+//        }
+//
+//        return Response.noContent().build();
+//    }
+//
+//    @DELETE
+//    @Path("/{id}")
+//    public Response deleteSingleConcert(@PathParam("id") long id) {
+//        Concert concert;
+//        try {
+//            em.getTransaction().begin();
+//            concert = em.find(Concert.class, id);
+//            if(concert == null) {
+//                throw new WebApplicationException(Response.Status.NOT_FOUND);
+//            }
+//
+//            em.remove(concert);
+//            em.getTransaction().commit();
+//        } finally {
+//            em.close();
+//        }
+//
+//        return Response.noContent().build();
+//    }
+//
+//
+//    @DELETE
+//    public Response deleteAllConcerts() {
+//        try {
+//            em.getTransaction().begin();
+////            em.createQuery("DELETE FROM Concert");
+//            em.getTransaction().commit();
+//        } finally {
+//            em.close();
+//        }
+//
+//        return Response.noContent().build();
+//    }
 
 }

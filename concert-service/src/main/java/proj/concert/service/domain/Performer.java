@@ -7,8 +7,8 @@ import proj.concert.common.types.Genre;
 import javax.annotation.processing.Generated;
 import javax.persistence.*;
 
-@Entity
-@Table(name = "PERFORMER")
+@Entity (name = "PERFORMER")
+@Table(name = "PERFORMERS")
 public class Performer implements Comparable<Performer> {
 
     @Id
@@ -19,13 +19,13 @@ public class Performer implements Comparable<Performer> {
     @Column(name = "NAME")
     private String name;
 
-    @Column(name = "IMAGENAME")
+    @Column(name = "IMAGE_NAME")
     private String imageName;
 
-    @Column(name = "GENRE")
+    @Enumerated (EnumType.STRING)
     private Genre genre;
 
-    @Column(name = "BLURB")
+    @Column(name = "BLURB", length = 1020)
     private String blurb;
 
     public Performer() {

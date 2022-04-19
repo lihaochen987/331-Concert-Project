@@ -21,7 +21,6 @@ public class TestResource {
 
         PersistenceManager.instance().reset();
         ConcertUtils.initConcerts();
-
         return Response.noContent().build();
     }
 

@@ -5,9 +5,11 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "USER")
+@Entity(name = "USER")
+@Table(name = "USERS")
 public class User {
+    @Version
+    private long version;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,19 +9,34 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import proj.concert.common.dto.PerformerDTO;
 
-public class Concert implements Comparable<Concert> {
-    // TODO Implement this class.
 
+
+@Entity(name = "CONCERT")
+@Table(name = "CONCERTS")
+public class Concert implements Comparable<Concert> {
+    // TODO CONCERT_PERFORMER fix
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
     private Long id;
 
+    @Column(name = "TITLE")
     private String title;
 
+    @Column(name = "IMAGE_NAME")
     private String imageName;
 
+    @Column(name = "BLURB", length = 1020)
     private String blurb;
 
+    @ElementCollection
+    @CollectionTable(name = "CONCERT_DATES")
+    @Column(name = "DATE")
     private List<LocalDateTime> dates = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "CONCERT_ID")
     private List<Performer> performers = new ArrayList<>();
 
     public Concert() {
