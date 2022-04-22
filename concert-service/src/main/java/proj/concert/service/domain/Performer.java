@@ -7,7 +7,7 @@ import proj.concert.common.types.Genre;
 import javax.annotation.processing.Generated;
 import javax.persistence.*;
 
-@Entity (name = "PERFORMER")
+@Entity (name = "Performer")
 @Table(name = "PERFORMERS")
 public class Performer implements Comparable<Performer> {
 

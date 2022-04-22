@@ -9,9 +9,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import proj.concert.common.dto.PerformerDTO;
 
-
-
-@Entity(name = "CONCERT")
+@Entity(name = "Concert")
 @Table(name = "CONCERTS")
 public class Concert implements Comparable<Concert> {
     // TODO CONCERT_PERFORMER fix
@@ -35,8 +33,10 @@ public class Concert implements Comparable<Concert> {
     @Column(name = "DATE")
     private List<LocalDateTime> dates = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "CONCERT_ID")
+    @ManyToMany
+    @JoinTable(name = "CONCERT_PERFORMER",
+            joinColumns = @JoinColumn(name = "CONCERT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID"))
     private List<Performer> performers = new ArrayList<>();
 
     public Concert() {

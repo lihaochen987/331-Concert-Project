@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 
-@Entity(name = "USER")
+@Entity(name = "User")
 @Table(name = "USERS")
 public class User {
     @Version
