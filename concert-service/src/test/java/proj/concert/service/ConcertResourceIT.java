@@ -68,6 +68,7 @@ public class ConcertResourceIT {
         assertEquals("PTX: The World Tour", concert.getTitle());
         assertEquals("concerts/ptx.jpg", concert.getImageName());
 
+        System.out.println(concert.getPerformers().toString());
         assertEquals(1, concert.getPerformers().size());
 
         PerformerDTO performer = concert.getPerformers().get(0);

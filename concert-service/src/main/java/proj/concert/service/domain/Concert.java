@@ -5,9 +5,12 @@ import java.util.*;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import proj.concert.common.dto.PerformerDTO;
+import proj.concert.common.jackson.LocalDateTimeDeserializer;
+import proj.concert.common.jackson.LocalDateTimeSerializer;
 
 @Entity(name = "Concert")
 @Table(name = "CONCERTS")
@@ -34,9 +37,10 @@ public class Concert implements Comparable<Concert> {
     private Set<LocalDateTime> dates = new HashSet<>();
 
     @ManyToMany
-    @JoinTable(name = "CONCERT_PERFORMER",
-            joinColumns = @JoinColumn(name = "CONCERT_ID"),
-            inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID"))
+    @JoinTable(
+            name = "CONCERT_PERFORMER",
+            joinColumns = @JoinColumn(name = "CONCERT_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID", referencedColumnName = "ID"))
     private List<Performer> performers = new ArrayList<>();
 
     public Concert() {
@@ -136,5 +140,9 @@ public class Concert implements Comparable<Concert> {
     @Override
     public int compareTo(Concert concert) {
         return title.compareTo(concert.getTitle());
+    }
+
+    public List<Performer> getPerformers() {
+        return this.performers;
     }
 }

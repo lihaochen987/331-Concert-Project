@@ -6,6 +6,8 @@ import proj.concert.common.types.Genre;
 
 import javax.annotation.processing.Generated;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity (name = "Performer")
 @Table(name = "PERFORMERS")
@@ -27,6 +29,9 @@ public class Performer implements Comparable<Performer> {
 
     @Column(name = "BLURB", length = 1020)
     private String blurb;
+
+    @ManyToMany(mappedBy = "performers")
+    private List<Concert> concerts = new ArrayList<>();
 
     public Performer() {
     }

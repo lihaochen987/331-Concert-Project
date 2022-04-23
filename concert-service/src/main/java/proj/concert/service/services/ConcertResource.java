@@ -2,6 +2,7 @@ package proj.concert.service.services;
 
 import proj.concert.common.dto.ConcertDTO;
 import proj.concert.service.domain.Concert;
+import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.ConcertMapper;
 
 import javax.persistence.EntityManager;
@@ -10,6 +11,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;

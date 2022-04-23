@@ -1,8 +1,12 @@
 package proj.concert.service.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import proj.concert.common.dto.SeatDTO;
+import proj.concert.common.jackson.LocalDateTimeDeserializer;
+import proj.concert.common.jackson.LocalDateTimeSerializer;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -27,6 +31,8 @@ public class Seat{
 	@Column(name = "ISBOOKED")
 	private boolean isBooked;
 
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@Column(name = "DATE")
 	private LocalDateTime date;
 
