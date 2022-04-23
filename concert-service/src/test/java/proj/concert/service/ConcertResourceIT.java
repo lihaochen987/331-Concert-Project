@@ -81,28 +81,28 @@ public class ConcertResourceIT {
         assertEquals(LocalDateTime.of(2020, 2, 15, 20, 0, 0), concert.getDates().get(0));
     }
 
-//    /**
-//     * A more advanced version of the test above. Makes sure the web service still functions correctly when requesting
-//     * a concert with multiple performers and dates.
-//     */
-//    @Test
-//    public void testGetSingleConcertWithMultiplePerformersAndDates() {
-//
-//        ConcertDTO concert = client.target(WEB_SERVICE_URI + "/concerts/4").request().get(ConcertDTO.class);
-//
-//        assertEquals("Hugh Jackman: The Man. The Music. The Show.", concert.getTitle());
-//
-//        assertEquals(2, concert.getPerformers().size());
-//
-//        concert.getPerformers().sort(Comparator.comparing(PerformerDTO::getId));
-//        assertEquals("Hugh Jackman", concert.getPerformers().get(0).getName());
-//        assertEquals("Keala Settle", concert.getPerformers().get(1).getName());
-//
-//        assertEquals(2, concert.getDates().size());
-//        concert.getDates().sort(Comparator.naturalOrder());
-//        assertEquals(LocalDateTime.of(2019, 9, 6, 20, 0, 0), concert.getDates().get(0));
-//        assertEquals(LocalDateTime.of(2019, 9, 7, 20, 0, 0), concert.getDates().get(1));
-//    }
+    /**
+     * A more advanced version of the test above. Makes sure the web service still functions correctly when requesting
+     * a concert with multiple performers and dates.
+     */
+    @Test
+    public void testGetSingleConcertWithMultiplePerformersAndDates() {
+
+        ConcertDTO concert = client.target(WEB_SERVICE_URI + "/concerts/4").request().get(ConcertDTO.class);
+
+        assertEquals("Hugh Jackman: The Man. The Music. The Show.", concert.getTitle());
+
+        assertEquals(2, concert.getPerformers().size());
+
+        concert.getPerformers().sort(Comparator.comparing(PerformerDTO::getId));
+        assertEquals("Hugh Jackman", concert.getPerformers().get(0).getName());
+        assertEquals("Keala Settle", concert.getPerformers().get(1).getName());
+
+        assertEquals(2, concert.getDates().size());
+        concert.getDates().sort(Comparator.naturalOrder());
+        assertEquals(LocalDateTime.of(2019, 9, 6, 20, 0, 0), concert.getDates().get(0));
+        assertEquals(LocalDateTime.of(2019, 9, 7, 20, 0, 0), concert.getDates().get(1));
+    }
 
 //    /**
 //     * Tests that a 404 response is returned when requesting a nonexistent concert.
