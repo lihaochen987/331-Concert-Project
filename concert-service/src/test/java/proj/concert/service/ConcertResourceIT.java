@@ -104,47 +104,47 @@ public class ConcertResourceIT {
         assertEquals(LocalDateTime.of(2019, 9, 7, 20, 0, 0), concert.getDates().get(1));
     }
 
-//    /**
-//     * Tests that a 404 response is returned when requesting a nonexistent concert.
-//     */
-//    @Test
-//    public void testGetNonExistentConcert() {
-//        Response response = client.target(WEB_SERVICE_URI + "/concerts/100").request().get();
-//
-//        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-//    }
-//
-//    /**
-//     * Tests that all concerts are returned when requested.
-//     */
-//    @Test
-//    public void testGetAllConcerts() {
-//
-//        List<ConcertDTO> concerts = client
-//                .target(WEB_SERVICE_URI + "/concerts")
-//                .request()
-//                .get(new GenericType<List<ConcertDTO>>() {
-//                });
-//
-//        assertEquals(8, concerts.size());
-//
-//        concerts.sort(Comparator.comparing(ConcertDTO::getId));
-//
-//        assertEquals("PTX: The World Tour", concerts.get(0).getTitle());
-//        assertEquals("Fleetwood Mac", concerts.get(1).getTitle());
-//        assertEquals("Bastille: Doom Days Tour", concerts.get(2).getTitle());
-//        assertEquals("Hugh Jackman: The Man. The Music. The Show.", concerts.get(3).getTitle());
-//        assertEquals("KISS: End of the Road World Tour", concerts.get(4).getTitle());
-//        assertEquals("Khalid: Free Spirit Tour", concerts.get(5).getTitle());
-//        assertEquals("Little Mix: LM5 Tour", concerts.get(6).getTitle());
-//        assertEquals("Shawn Mendes, with special guest Ruel", concerts.get(7).getTitle());
-//
-//        for (ConcertDTO c : concerts) {
-//            assertTrue(c.getPerformers().size() > 0);
-//            assertTrue(c.getDates().size() > 0);
-//        }
-//
-//    }
+    /**
+     * Tests that a 404 response is returned when requesting a nonexistent concert.
+     */
+    @Test
+    public void testGetNonExistentConcert() {
+        Response response = client.target(WEB_SERVICE_URI + "/concerts/100").request().get();
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    /**
+     * Tests that all concerts are returned when requested.
+     */
+    @Test
+    public void testGetAllConcerts() {
+
+        List<ConcertDTO> concerts = client
+                .target(WEB_SERVICE_URI + "/concerts")
+                .request()
+                .get(new GenericType<List<ConcertDTO>>() {
+                });
+
+        assertEquals(8, concerts.size());
+
+        concerts.sort(Comparator.comparing(ConcertDTO::getId));
+
+        assertEquals("PTX: The World Tour", concerts.get(0).getTitle());
+        assertEquals("Fleetwood Mac", concerts.get(1).getTitle());
+        assertEquals("Bastille: Doom Days Tour", concerts.get(2).getTitle());
+        assertEquals("Hugh Jackman: The Man. The Music. The Show.", concerts.get(3).getTitle());
+        assertEquals("KISS: End of the Road World Tour", concerts.get(4).getTitle());
+        assertEquals("Khalid: Free Spirit Tour", concerts.get(5).getTitle());
+        assertEquals("Little Mix: LM5 Tour", concerts.get(6).getTitle());
+        assertEquals("Shawn Mendes, with special guest Ruel", concerts.get(7).getTitle());
+
+        for (ConcertDTO c : concerts) {
+            assertTrue(c.getPerformers().size() > 0);
+            assertTrue(c.getDates().size() > 0);
+        }
+
+    }
 //
 //    /**
 //     * Tests that all concert summaries are returned when requested. Concert summaries contain only the id, title, and

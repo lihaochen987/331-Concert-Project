@@ -34,12 +34,17 @@ public class ConcertResource {
             em.getTransaction().begin();
 
             Concert concert = em.find(Concert.class, id);
+            if (concert == null){
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+
             dtoConcert = ConcertMapper.toDto(concert);
 
             em.getTransaction().commit();
         } finally {
             em.close();
         }
+
         return dtoConcert;
 
     }
