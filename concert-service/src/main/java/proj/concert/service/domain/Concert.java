@@ -31,7 +31,7 @@ public class Concert implements Comparable<Concert> {
     @ElementCollection
     @CollectionTable(name = "CONCERT_DATES")
     @Column(name = "DATE")
-    private List<LocalDateTime> dates = new ArrayList<>();
+    private Set<LocalDateTime> dates = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "CONCERT_PERFORMER",
@@ -87,7 +87,7 @@ public class Concert implements Comparable<Concert> {
     }
 
     public Set<LocalDateTime> getDates() {
-        return null;
+        return dates;
     }
 
     @Override
