@@ -2,11 +2,14 @@ package proj.concert.service.services;
 
 import proj.concert.common.dto.ConcertDTO;
 import proj.concert.common.dto.ConcertSummaryDTO;
+import proj.concert.common.dto.PerformerDTO;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.ConcertSummary;
+import proj.concert.service.domain.Performer;
 import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.ConcertMapper;
 import proj.concert.service.mapper.ConcertSummaryMapper;
+import proj.concert.service.mapper.PerformerMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -103,6 +106,30 @@ public class ConcertResource {
         }
 
         return dtoConcertSummaries;
+    }
+
+    @GET
+    @Path("/performers/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PerformerDTO retrievePerformer(@PathParam("id") long id) {
+        LOGGER.info("Retrieving performer with id: " + id);
+        PerformerDTO dtoPerformer;
+        try {
+            em.getTransaction().begin();
+
+            Performer performer = em.find(Performer.class, id);
+            if (performer == null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+
+            dtoPerformer = PerformerMapper.toDto(performer);
+
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
+        return dtoPerformer;
     }
 
 

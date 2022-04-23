@@ -21,9 +21,15 @@ public class ConcertMapper {
     }
 
     public static ConcertDTO toDto(Concert concert) {
-        List<PerformerDTO> performerDTOList = PerformerMapper.toDto(concert.getPerformers());
+        List<Performer> performers = concert.getPerformers();
+        List<PerformerDTO> performerDTOList = new ArrayList<PerformerDTO>();
+
+        for (Performer performer : performers){
+            PerformerDTO dtoPerformer = PerformerMapper.toDto(performer);
+            performerDTOList.add(dtoPerformer);
+        }
+
         List<LocalDateTime> dates = new ArrayList<>(concert.getDates());
-        LOGGER.info(dates.get(0));
 
         ConcertDTO dtoConcert = new ConcertDTO(concert.getId(), concert.getTitle(), concert.getImageName(), concert.getBlurb());
         dtoConcert.setPerformers(performerDTOList);
