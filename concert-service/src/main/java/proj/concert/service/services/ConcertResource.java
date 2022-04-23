@@ -6,12 +6,15 @@ import proj.concert.service.mapper.ConcertMapper;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
 
-@Path("/concerts")
+import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
+
+@Path("/concert-service")
 public class ConcertResource {
     //TODO implement this class.
 
@@ -20,23 +23,22 @@ public class ConcertResource {
     private Map<Long, Concert> concertDB;
 
     @GET
-    @Path("{id}")
+    @Path("/concerts/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConcertDTO retrieveConcert(@PathParam("id") long id) {
-        Concert concert;
+    public ConcertDTO retrieveConcert(@PathParam("id") long id, @CookieParam("clientId") Cookie clientId) {
+        LOGGER.info("Retrieving concert with id: " + id);
+        ConcertDTO dtoConcert;
         try {
             em.getTransaction().begin();
 
-            concert = em.find(Concert.class, id);
-            ConcertDTO dtoConcert = ConcertMapper.toDto(concert);
+            Concert concert = em.find(Concert.class, id);
+            dtoConcert = ConcertMapper.toDto(concert);
 
             em.getTransaction().commit();
-
-            return dtoConcert;
-
         } finally {
             em.close();
         }
+        return dtoConcert;
 
     }
 
