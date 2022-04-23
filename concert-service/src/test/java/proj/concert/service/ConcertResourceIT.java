@@ -145,34 +145,34 @@ public class ConcertResourceIT {
         }
 
     }
-//
-//    /**
-//     * Tests that all concert summaries are returned when requested. Concert summaries contain only the id, title, and
-//     * image name for each concert.
-//     */
-//    @Test
-//    public void testGetConcertSummaries() {
-//
-//        List<ConcertSummaryDTO> concerts = client
-//                .target(WEB_SERVICE_URI + "/concerts/summaries")
-//                .request()
-//                .get(new GenericType<List<ConcertSummaryDTO>>() {
-//                });
-//
-//        assertEquals(8, concerts.size());
-//
-//        concerts.sort(Comparator.comparing(ConcertSummaryDTO::getId));
-//
-//        assertEquals("PTX: The World Tour", concerts.get(0).getTitle());
-//        assertEquals("Fleetwood Mac", concerts.get(1).getTitle());
-//        assertEquals("Bastille: Doom Days Tour", concerts.get(2).getTitle());
-//        assertEquals("Hugh Jackman: The Man. The Music. The Show.", concerts.get(3).getTitle());
-//        assertEquals("KISS: End of the Road World Tour", concerts.get(4).getTitle());
-//        assertEquals("Khalid: Free Spirit Tour", concerts.get(5).getTitle());
-//        assertEquals("Little Mix: LM5 Tour", concerts.get(6).getTitle());
-//        assertEquals("Shawn Mendes, with special guest Ruel", concerts.get(7).getTitle());
-//
-//    }
+
+    /**
+     * Tests that all concert summaries are returned when requested. Concert summaries contain only the id, title, and
+     * image name for each concert.
+     */
+    @Test
+    public void testGetConcertSummaries() {
+
+        List<ConcertSummaryDTO> concerts = client
+                .target(WEB_SERVICE_URI + "/concerts/summaries")
+                .request()
+                .get(new GenericType<List<ConcertSummaryDTO>>() {
+                });
+
+        assertEquals(8, concerts.size());
+
+        concerts.sort(Comparator.comparing(ConcertSummaryDTO::getId));
+
+        assertEquals("PTX: The World Tour", concerts.get(0).getTitle());
+        assertEquals("Fleetwood Mac", concerts.get(1).getTitle());
+        assertEquals("Bastille: Doom Days Tour", concerts.get(2).getTitle());
+        assertEquals("Hugh Jackman: The Man. The Music. The Show.", concerts.get(3).getTitle());
+        assertEquals("KISS: End of the Road World Tour", concerts.get(4).getTitle());
+        assertEquals("Khalid: Free Spirit Tour", concerts.get(5).getTitle());
+        assertEquals("Little Mix: LM5 Tour", concerts.get(6).getTitle());
+        assertEquals("Shawn Mendes, with special guest Ruel", concerts.get(7).getTitle());
+
+    }
 //
 //    /**
 //     * Tests that a 200 response is returned, along with the correct performer info, when requesting a performer with

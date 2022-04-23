@@ -1,9 +1,12 @@
 package proj.concert.service.services;
 
 import proj.concert.common.dto.ConcertDTO;
+import proj.concert.common.dto.ConcertSummaryDTO;
 import proj.concert.service.domain.Concert;
+import proj.concert.service.domain.ConcertSummary;
 import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.ConcertMapper;
+import proj.concert.service.mapper.ConcertSummaryMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -76,6 +79,33 @@ public class ConcertResource {
         return dtoConcerts;
 
     }
+
+    @GET
+    @Path("/concerts/summaries")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ArrayList<ConcertSummaryDTO> retrieveAllConcertSummaries() {
+        LOGGER.info("Retrieving all concert summaries");
+        ArrayList<ConcertSummaryDTO> dtoConcertSummaries = new ArrayList<ConcertSummaryDTO>();
+
+        try {
+            em.getTransaction().begin();
+            TypedQuery<Concert> query = em.createQuery("select c from Concert c", Concert.class);
+            List<Concert> concerts = query.getResultList();
+
+            for (Concert concert : concerts) {
+                ConcertSummary toAdd = new ConcertSummary(concert.getId(), concert.getTitle(), concert.getImageName());
+                dtoConcertSummaries.add(ConcertSummaryMapper.toDto(toAdd));
+            }
+
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
+        return dtoConcertSummaries;
+    }
+
+
 //    @POST
 //    @Consumes(MediaType.APPLICATION_JSON)
 //    public Response createConcert(ConcertDTO dtoConcert) {

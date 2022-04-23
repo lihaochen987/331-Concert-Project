@@ -15,8 +15,6 @@ import proj.concert.common.jackson.LocalDateTimeSerializer;
 @Entity(name = "Concert")
 @Table(name = "CONCERTS")
 public class Concert implements Comparable<Concert> {
-    // TODO CONCERT_PERFORMER fix
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
