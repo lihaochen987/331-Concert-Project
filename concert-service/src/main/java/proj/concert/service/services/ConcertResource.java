@@ -6,12 +6,15 @@ import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.ConcertMapper;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
@@ -27,14 +30,14 @@ public class ConcertResource {
     @GET
     @Path("/concerts/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConcertDTO retrieveConcert(@PathParam("id") long id, @CookieParam("clientId") Cookie clientId) {
+    public ConcertDTO retrieveConcert(@PathParam("id") long id) {
         LOGGER.info("Retrieving concert with id: " + id);
         ConcertDTO dtoConcert;
         try {
             em.getTransaction().begin();
 
             Concert concert = em.find(Concert.class, id);
-            if (concert == null){
+            if (concert == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
 
@@ -49,6 +52,30 @@ public class ConcertResource {
 
     }
 
+    @GET
+    @Path("/concerts")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ArrayList<ConcertDTO> retrieveAllConcerts() {
+        LOGGER.info("Retrieving all concerts");
+        ArrayList<ConcertDTO> dtoConcerts = new ArrayList<ConcertDTO>();
+
+        try {
+            em.getTransaction().begin();
+            TypedQuery<Concert> query = em.createQuery("select c from Concert c", Concert.class);
+            List<Concert> concerts = query.getResultList();
+
+            for (Concert concert : concerts) {
+                dtoConcerts.add(ConcertMapper.toDto(concert));
+            }
+
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
+        return dtoConcerts;
+
+    }
 //    @POST
 //    @Consumes(MediaType.APPLICATION_JSON)
 //    public Response createConcert(ConcertDTO dtoConcert) {
