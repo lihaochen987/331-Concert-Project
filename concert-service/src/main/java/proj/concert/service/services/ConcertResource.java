@@ -6,7 +6,6 @@ import proj.concert.common.dto.PerformerDTO;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.ConcertSummary;
 import proj.concert.service.domain.Performer;
-import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.ConcertMapper;
 import proj.concert.service.mapper.ConcertSummaryMapper;
 import proj.concert.service.mapper.PerformerMapper;
@@ -14,11 +13,8 @@ import proj.concert.service.mapper.PerformerMapper;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +126,31 @@ public class ConcertResource {
         }
 
         return dtoPerformer;
+    }
+
+    @GET
+    @Path("/performers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ArrayList<PerformerDTO> retrieveAllPerformers() {
+        LOGGER.info("Retrieving all performers");
+        ArrayList<PerformerDTO> dtoPerformers = new ArrayList<PerformerDTO>();
+
+        try {
+            em.getTransaction().begin();
+            TypedQuery<Performer> query = em.createQuery("select p from Performer p", Performer.class);
+            List<Performer> performers = query.getResultList();
+
+            for (Performer performer : performers) {
+                dtoPerformers.add(PerformerMapper.toDto(performer));
+            }
+
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
+        return dtoPerformers;
+
     }
 
 

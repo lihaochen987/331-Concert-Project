@@ -188,48 +188,48 @@ public class ConcertResourceIT {
         assertEquals(Genre.Acappella, performer.getGenre());
 
     }
-//
-//    /**
-//     * Tests that a 404 response is returned when requesting a nonexistent performer.
-//     */
-//    @Test
-//    public void testGetNonExistentPerformer() {
-//
-//        Response response = client.target(WEB_SERVICE_URI + "/performers/100").request().get();
-//
-//        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-//
-//    }
-//
-//    /**
-//     * Tests that all performers are returned when requested.
-//     */
-//    @Test
-//    public void testGetAllPerformers() {
-//
-//        List<PerformerDTO> performers = client
-//                .target(WEB_SERVICE_URI + "/performers")
-//                .request()
-//                .get(new GenericType<List<PerformerDTO>>() {
-//                });
-//
-//        assertEquals(11, performers.size());
-//
-//        performers.sort(Comparator.comparing(PerformerDTO::getId));
-//
-//        assertEquals("Pentatonix", performers.get(0).getName());
-//        assertEquals("Fleetwood Mac", performers.get(1).getName());
-//        assertEquals("Bastille", performers.get(2).getName());
-//        assertEquals("Hugh Jackman", performers.get(3).getName());
-//        assertEquals("Keala Settle", performers.get(4).getName());
-//        assertEquals("KISS", performers.get(5).getName());
-//        assertEquals("Khalid", performers.get(6).getName());
-//        assertEquals("Little Mix", performers.get(7).getName());
-//        assertEquals("Robinson", performers.get(8).getName());
-//        assertEquals("Shawn Mendes", performers.get(9).getName());
-//        assertEquals("Ruel", performers.get(10).getName());
-//
-//    }
+
+    /**
+     * Tests that a 404 response is returned when requesting a nonexistent performer.
+     */
+    @Test
+    public void testGetNonExistentPerformer() {
+
+        Response response = client.target(WEB_SERVICE_URI + "/performers/100").request().get();
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+
+    }
+
+    /**
+     * Tests that all performers are returned when requested.
+     */
+    @Test
+    public void testGetAllPerformers() {
+
+        List<PerformerDTO> performers = client
+                .target(WEB_SERVICE_URI + "/performers")
+                .request()
+                .get(new GenericType<List<PerformerDTO>>() {
+                });
+
+        assertEquals(11, performers.size());
+
+        performers.sort(Comparator.comparing(PerformerDTO::getId));
+
+        assertEquals("Pentatonix", performers.get(0).getName());
+        assertEquals("Fleetwood Mac", performers.get(1).getName());
+        assertEquals("Bastille", performers.get(2).getName());
+        assertEquals("Hugh Jackman", performers.get(3).getName());
+        assertEquals("Keala Settle", performers.get(4).getName());
+        assertEquals("KISS", performers.get(5).getName());
+        assertEquals("Khalid", performers.get(6).getName());
+        assertEquals("Little Mix", performers.get(7).getName());
+        assertEquals("Robinson", performers.get(8).getName());
+        assertEquals("Shawn Mendes", performers.get(9).getName());
+        assertEquals("Ruel", performers.get(10).getName());
+
+    }
 //
 //    /**
 //     * Tests that a 401 error is returned when an incorrect username is supplied on login, and makes sure that
