@@ -1,9 +1,6 @@
 package proj.concert.service.services;
 
-import proj.concert.common.dto.ConcertDTO;
-import proj.concert.common.dto.ConcertSummaryDTO;
-import proj.concert.common.dto.PerformerDTO;
-import proj.concert.common.dto.UserDTO;
+import proj.concert.common.dto.*;
 import proj.concert.service.common.Config;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.ConcertSummary;
@@ -189,6 +186,22 @@ public class ConcertResource {
                 .ok()
                 .cookie(makeCookie(auth))
                 .build();
+    }
+
+    @POST
+    @Path("/bookings")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) {
+        LOGGER.info("Attempt to create a booking request");
+        return Response.status(401).build();
+    }
+
+    @GET
+    @Path("/seats/{localdatetime}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<SeatDTO> getSeats(@QueryParam("status") String status, @CookieParam("auth") Cookie auth){
+        LOGGER.info("Attempting to get seats");
+        return new ArrayList<SeatDTO>();
     }
 
     //    @POST
