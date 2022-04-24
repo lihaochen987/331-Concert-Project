@@ -6,6 +6,7 @@ import proj.concert.common.dto.PerformerDTO;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.ConcertSummary;
 import proj.concert.service.domain.Performer;
+import proj.concert.service.domain.User;
 import proj.concert.service.mapper.ConcertMapper;
 import proj.concert.service.mapper.ConcertSummaryMapper;
 import proj.concert.service.mapper.PerformerMapper;
@@ -153,6 +154,11 @@ public class ConcertResource {
 
     }
 
+    @POST
+    @Path("/login")
+    public Response login(){
+        return Response.status(401).build();
+    }
 
 //    @POST
 //    @Consumes(MediaType.APPLICATION_JSON)

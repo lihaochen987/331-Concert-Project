@@ -230,30 +230,30 @@ public class ConcertResourceIT {
         assertEquals("Ruel", performers.get(10).getName());
 
     }
-//
-//    /**
-//     * Tests that a 401 error is returned when an incorrect username is supplied on login, and makes sure that
-//     * no authentication token is generated.
-//     */
-//    @Test
-//    public void testFailedLogin_IncorrectUsername() {
-//        // Log in
-//        Response loginResponse = login(client, "tesftuser", "pa55word");
-//        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), loginResponse.getStatus());
-//        assertNull(loginResponse.getCookies().get("auth"));
-//    }
-//
-//    /**
-//     * Tests that a 401 error is returned when an incorrect password is supplied on login, and makes sure that
-//     * no authentication token is generated.
-//     */
-//    @Test
-//    public void testFailedLogin_IncorrectPassword() {
-//        // Log in
-//        Response loginResponse = login(client, "testuser", "pa5word");
-//        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), loginResponse.getStatus());
-//        assertNull(loginResponse.getCookies().get("auth"));
-//    }
+
+    /**
+     * Tests that a 401 error is returned when an incorrect username is supplied on login, and makes sure that
+     * no authentication token is generated.
+     */
+    @Test
+    public void testFailedLogin_IncorrectUsername() {
+        // Log in
+        Response loginResponse = login(client, "tesftuser", "pa55word");
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), loginResponse.getStatus());
+        assertNull(loginResponse.getCookies().get("auth"));
+    }
+
+    /**
+     * Tests that a 401 error is returned when an incorrect password is supplied on login, and makes sure that
+     * no authentication token is generated.
+     */
+    @Test
+    public void testFailedLogin_IncorrectPassword() {
+        // Log in
+        Response loginResponse = login(client, "testuser", "pa5word");
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), loginResponse.getStatus());
+        assertNull(loginResponse.getCookies().get("auth"));
+    }
 //
 //    /**
 //     * tests that a 200 response is returned when the correct username and password are supplied on login, and that
@@ -803,40 +803,40 @@ public class ConcertResourceIT {
 ////
 ////    }
 //
-//    // Helper methods
-//    // --------------------------------------------------------------------
-//
-//    /**
-//     * Helper method to log us in.
-//     */
-//    private static Response login(Client client, String username, String password) {
-//        UserDTO creds = new UserDTO(username, password);
-//        return client.target(WEB_SERVICE_URI + "/login")
-//                .request().post(Entity.json(creds));
-//    }
-//
-//    /**
-//     * Helper method - tries to book entire rows.
-//     */
-//    private static Response attemptBooking(Client client, long concertId, LocalDateTime date, char minRow, char maxRow) {
-//        List<String> toBook = new ArrayList<>();
-//        for (char row = minRow; row <= maxRow; row++) {
-//            for (int num = 1; num <= 12; num++) {
-//                toBook.add("" + row + num);
-//            }
-//        }
-//        return attemptBooking(client, concertId, date, toBook.toArray(new String[0]));
-//    }
-//
-//    /**
-//     * Attempts a booking with the given details, and returns the server's response. Should already be logged in.
-//     */
-//    private static Response attemptBooking(Client client, long concertId, LocalDateTime date, String... seatLabels) {
-//
-//        BookingRequestDTO bReq = new BookingRequestDTO(concertId, date, Arrays.asList(seatLabels));
-//
-//        // Make booking
-//        return client.target(WEB_SERVICE_URI + "/bookings").request().post(Entity.json(bReq));
-//    }
+    // Helper methods
+    // --------------------------------------------------------------------
+
+    /**
+     * Helper method to log us in.
+     */
+    private static Response login(Client client, String username, String password) {
+        UserDTO creds = new UserDTO(username, password);
+        return client.target(WEB_SERVICE_URI + "/login")
+                .request().post(Entity.json(creds));
+    }
+
+    /**
+     * Helper method - tries to book entire rows.
+     */
+    private static Response attemptBooking(Client client, long concertId, LocalDateTime date, char minRow, char maxRow) {
+        List<String> toBook = new ArrayList<>();
+        for (char row = minRow; row <= maxRow; row++) {
+            for (int num = 1; num <= 12; num++) {
+                toBook.add("" + row + num);
+            }
+        }
+        return attemptBooking(client, concertId, date, toBook.toArray(new String[0]));
+    }
+
+    /**
+     * Attempts a booking with the given details, and returns the server's response. Should already be logged in.
+     */
+    private static Response attemptBooking(Client client, long concertId, LocalDateTime date, String... seatLabels) {
+
+        BookingRequestDTO bReq = new BookingRequestDTO(concertId, date, Arrays.asList(seatLabels));
+
+        // Make booking
+        return client.target(WEB_SERVICE_URI + "/bookings").request().post(Entity.json(bReq));
+    }
 
 }

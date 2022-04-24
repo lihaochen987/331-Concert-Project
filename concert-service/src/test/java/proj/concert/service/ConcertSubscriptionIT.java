@@ -27,32 +27,32 @@ import static org.junit.Assert.*;
 
 public class ConcertSubscriptionIT {
 
-//    private static final String WEB_SERVICE_URI = "http://localhost:10000/services/concert-service";
-//    private Client client;
-//
-//    /**
-//     * Ensures the DB is in the same state before running each test.
-//     */
-//    @Before
-//    public void setUp() {
-//
-//        client = ClientBuilder.newClient();
-//
-//        Response response = client
-//                .target(WEB_SERVICE_URI + "-test/reset")
-//                .request().get();
-//
-//        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-//    }
-//
-//    /**
-//     * Kills the client after every test, to get rid of any leftover cookies.
-//     */
-//    @After
-//    public void tearDown() {
-//        client.close();
-//        client = null;
-//    }
+    private static final String WEB_SERVICE_URI = "http://localhost:10000/services/concert-service";
+    private Client client;
+
+    /**
+     * Ensures the DB is in the same state before running each test.
+     */
+    @Before
+    public void setUp() {
+
+        client = ClientBuilder.newClient();
+
+        Response response = client
+                .target(WEB_SERVICE_URI + "-test/reset")
+                .request().get();
+
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+    }
+
+    /**
+     * Kills the client after every test, to get rid of any leftover cookies.
+     */
+    @After
+    public void tearDown() {
+        client.close();
+        client = null;
+    }
 //
 //    // Tests for publish / subscribe functions - uncomment when ready.
 //    // --------------------------------------------------------------------
