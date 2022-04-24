@@ -3,6 +3,8 @@ package proj.concert.service.services;
 import proj.concert.common.dto.ConcertDTO;
 import proj.concert.common.dto.ConcertSummaryDTO;
 import proj.concert.common.dto.PerformerDTO;
+import proj.concert.common.dto.UserDTO;
+import proj.concert.service.common.Config;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.ConcertSummary;
 import proj.concert.service.domain.Performer;
@@ -10,15 +12,21 @@ import proj.concert.service.domain.User;
 import proj.concert.service.mapper.ConcertMapper;
 import proj.concert.service.mapper.ConcertSummaryMapper;
 import proj.concert.service.mapper.PerformerMapper;
+import proj.concert.service.mapper.UserMapper;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
@@ -156,11 +164,34 @@ public class ConcertResource {
 
     @POST
     @Path("/login")
-    public Response login(){
-        return Response.status(401).build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response login(UserDTO creds, @CookieParam("auth") Cookie auth) {
+        LOGGER.info("Attempting to login");
+        try {
+            em.getTransaction().begin();
+
+            User toFind = UserMapper.toDomainModel(creds);
+            Query query = em
+                    .createQuery("select u from User u where u.username=:username and u.password=:password", User.class)
+                    .setParameter("username", toFind.getUsername())
+                    .setParameter("password", toFind.getPassword());
+
+            if (query.getResultList().isEmpty()) {
+                return Response.status(401).build();
+            }
+
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
+        return Response
+                .ok()
+                .cookie(makeCookie(auth))
+                .build();
     }
 
-//    @POST
+    //    @POST
 //    @Consumes(MediaType.APPLICATION_JSON)
 //    public Response createConcert(ConcertDTO dtoConcert) {
 //        Concert concert = ConcertMapper.toDomainModel(dtoConcert);
@@ -224,5 +255,14 @@ public class ConcertResource {
 //
 //        return Response.noContent().build();
 //    }
+    private NewCookie makeCookie(@CookieParam("auth") Cookie auth) {
+        NewCookie newCookie = null;
 
+        if (auth == null) {
+            newCookie = new NewCookie(Config.CLIENT_COOKIE, UUID.randomUUID().toString());
+            LOGGER.info("Generated cookie: " + newCookie.getValue());
+        }
+
+        return newCookie;
+    }
 }

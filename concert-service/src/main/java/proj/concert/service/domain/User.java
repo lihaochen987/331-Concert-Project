@@ -53,11 +53,11 @@ public class User {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        User userDTO = (User) o;
+        User user = (User) o;
 
         return new EqualsBuilder()
-                .append(username, userDTO.username)
-                .append(password, userDTO.password)
+                .append(username, user.username)
+                .append(password, user.password)
                 .isEquals();
     }
 
@@ -71,7 +71,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "UserDTO{" +
+        return "User{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 '}';
