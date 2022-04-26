@@ -341,6 +341,7 @@ public class ConcertResourceIT {
                 "C5", "C6");
 
         // Get the booking
+        System.out.println(bookingResponse.getLocation());
         BookingDTO booking = client.target(bookingResponse.getLocation()).request().get(BookingDTO.class);
 
         // Check details

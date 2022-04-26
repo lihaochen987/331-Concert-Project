@@ -17,7 +17,9 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", nullable = false)
+    private long id;
+
+    @Column(name = "CONCERTID", nullable = false)
     private long concertId;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -63,4 +65,6 @@ public class Booking {
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
+
+    public long getId(){return id;}
 }

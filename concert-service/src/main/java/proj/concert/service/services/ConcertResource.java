@@ -190,6 +190,7 @@ public class ConcertResource {
     public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempt to create a booking request");
         ArrayList<Seat> seats = new ArrayList<Seat>();
+        Booking booking;
 
         if (auth == null) {
             return Response.status(401).build();
@@ -206,15 +207,16 @@ public class ConcertResource {
                 seats.add(seat.getSingleResult());
             }
 
-            Booking booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
-            em.merge(BookingRequestMapper.toDomainModel(bReq));
+            booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
+            em.persist(booking);
             em.getTransaction().commit();
         } finally {
             em.close();
         }
 
         return Response
-                .created(URI.create("/seats/" + bReq.getDate() + "?status=Booked"))
+                //TODO sort out a good URI
+                .created(URI.create("/concert-service/bookings/" + booking.getId()))
                 .cookie(makeCookie(auth))
                 .build();
     }
@@ -245,6 +247,25 @@ public class ConcertResource {
         }
         return seats;
     }
+
+    @GET
+    @Path("/bookings/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BookingDTO getBookingById(@CookieParam("auth") Cookie auth, @PathParam("id") long bookingId) {
+        LOGGER.info("Attempting to get booking by id");
+        BookingDTO dtoBooking;
+
+        try {
+            em.getTransaction().begin();
+            Booking booking = em.find(Booking.class, bookingId);
+            dtoBooking = BookingMapper.toDto(booking);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+        return dtoBooking;
+    }
+
 
     //    @POST
 //    @Consumes(MediaType.APPLICATION_JSON)
