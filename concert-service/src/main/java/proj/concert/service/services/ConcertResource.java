@@ -11,10 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -55,7 +52,6 @@ public class ConcertResource {
 
         return Response
                 .ok(dtoConcert)
-                .cookie(makeCookie(auth))
                 .build();
 
     }
@@ -83,7 +79,6 @@ public class ConcertResource {
 
         return Response
                 .ok(dtoConcerts)
-                .cookie(makeCookie(auth))
                 .build();
 
     }
@@ -112,7 +107,6 @@ public class ConcertResource {
 
         return Response
                 .ok(dtoConcertSummaries)
-                .cookie(makeCookie(auth))
                 .build();
     }
 
@@ -139,7 +133,6 @@ public class ConcertResource {
 
         return Response
                 .ok(dtoPerformer)
-                .cookie(makeCookie(auth))
                 .build();
     }
 
@@ -166,7 +159,6 @@ public class ConcertResource {
 
         return Response
                 .ok(dtoPerformers)
-                .cookie(makeCookie(auth))
                 .build();
 
     }
@@ -176,11 +168,12 @@ public class ConcertResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(UserDTO creds, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempting to login");
+        User user;
         try {
             em.getTransaction().begin();
 
             User toFind = UserMapper.toDomainModel(creds);
-            Query query = em
+            TypedQuery<User> query = em
                     .createQuery("select u from User u where u.username=:username and u.password=:password", User.class)
                     .setParameter("username", toFind.getUsername())
                     .setParameter("password", toFind.getPassword());
@@ -189,14 +182,18 @@ public class ConcertResource {
                 return Response.status(401).build();
             }
 
+            user = query.getSingleResult();
             em.getTransaction().commit();
         } finally {
             em.close();
         }
 
+        NewCookie newCookie = new NewCookie("auth", UUID.randomUUID().toString());
+        LOGGER.info("Generated cookie: " + newCookie.getValue());
+
         return Response
                 .ok()
-                .cookie(makeCookie(auth))
+                .cookie(newCookie)
                 .build();
     }
 
@@ -208,7 +205,7 @@ public class ConcertResource {
         ArrayList<Seat> seats = new ArrayList<Seat>();
         Booking booking;
 
-        if (auth == null) {
+        if (auth == null){
             return Response.status(401).build();
         }
 
@@ -232,7 +229,6 @@ public class ConcertResource {
 
         return Response
                 .created(URI.create("/concert-service/bookings/" + booking.getId()))
-                .cookie(makeCookie(auth))
                 .build();
     }
 
@@ -262,7 +258,6 @@ public class ConcertResource {
         }
         return Response
                 .ok(seats)
-                .cookie(makeCookie(auth))
                 .build();
     }
 
@@ -271,6 +266,8 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBookingById(@CookieParam("auth") Cookie auth, @PathParam("id") long bookingId) {
         LOGGER.info("Attempting to get booking by id");
+        System.out.println(auth.getName());
+        System.out.println(auth.getValue());
         BookingDTO dtoBooking;
 
         if (auth == null){
@@ -287,7 +284,6 @@ public class ConcertResource {
         }
         return Response
                 .ok(dtoBooking)
-                .cookie(makeCookie(auth))
                 .build();
     }
 
@@ -356,14 +352,18 @@ public class ConcertResource {
 //
 //        return Response.noContent().build();
 //    }
-    private NewCookie makeCookie(@CookieParam("auth") Cookie auth) {
+    private NewCookie makeCookie(String username, @CookieParam("auth") Cookie auth) {
         NewCookie newCookie = null;
 
         if (auth == null) {
-            newCookie = new NewCookie(Config.CLIENT_COOKIE, UUID.randomUUID().toString());
+            newCookie = new NewCookie(username, UUID.randomUUID().toString());
             LOGGER.info("Generated cookie: " + newCookie.getValue());
         }
 
         return newCookie;
+    }
+
+    private Cookie passCookie (@CookieParam("auth") Cookie auth){
+        return auth;
     }
 }
