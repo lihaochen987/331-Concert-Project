@@ -68,6 +68,10 @@ public class Seat{
 		this.price = price;
 	}
 
+	public boolean getBookingStatus(){ return isBooked;}
+
+	public void setBookingStatus(boolean isBooked){ this.isBooked = isBooked;}
+
 	@Override
 	public String toString() {
 		return label;

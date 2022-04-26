@@ -26,7 +26,7 @@ public class BookingRequest {
 
     @ElementCollection
     @CollectionTable(name = "BOOKINGREQUEST_DATES")
-    @Column(name = "DATE")
+    @Column(name = "SEATLABELS")
     private List<String> seatLabels = new ArrayList<>();
 
     public BookingRequest(){}

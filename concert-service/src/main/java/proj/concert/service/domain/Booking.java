@@ -26,7 +26,7 @@ public class Booking {
     private LocalDateTime date;
 
     @OneToMany(orphanRemoval = true)
-    @JoinColumn(name = "BOOKING_ID")
+    @JoinColumn(name = "SEATS")
     private List<Seat> seats = new ArrayList<>();
 
     public Booking() {

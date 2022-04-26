@@ -2,14 +2,9 @@ package proj.concert.service.services;
 
 import proj.concert.common.dto.*;
 import proj.concert.service.common.Config;
-import proj.concert.service.domain.Concert;
-import proj.concert.service.domain.ConcertSummary;
-import proj.concert.service.domain.Performer;
-import proj.concert.service.domain.User;
-import proj.concert.service.mapper.ConcertMapper;
-import proj.concert.service.mapper.ConcertSummaryMapper;
-import proj.concert.service.mapper.PerformerMapper;
-import proj.concert.service.mapper.UserMapper;
+import proj.concert.service.domain.*;
+import proj.concert.service.jaxrs.LocalDateTimeParam;
+import proj.concert.service.mapper.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -20,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -193,15 +189,61 @@ public class ConcertResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempt to create a booking request");
-        return Response.status(401).build();
+        ArrayList<Seat> seats = new ArrayList<Seat>();
+
+        if (auth == null) {
+            return Response.status(401).build();
+        }
+
+        try {
+            em.getTransaction().begin();
+            for (String seatLabel: bReq.getSeatLabels()){
+                TypedQuery<Seat> seat = em
+                        .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
+                        .setParameter("label", seatLabel)
+                        .setParameter("date", bReq.getDate());
+                seat.getSingleResult().setBookingStatus(true);
+                seats.add(seat.getSingleResult());
+            }
+
+            Booking booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
+            em.merge(BookingRequestMapper.toDomainModel(bReq));
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
+        return Response
+                .created(URI.create("/seats/" + bReq.getDate() + "?status=Booked"))
+                .cookie(makeCookie(auth))
+                .build();
     }
 
     @GET
-    @Path("/seats/{localdatetime}")
+    @Path("/seats/{localDateTime}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<SeatDTO> getSeats(@QueryParam("status") String status, @CookieParam("auth") Cookie auth){
+    public List<SeatDTO> getSeats(@PathParam("localDateTime") LocalDateTimeParam dateParam, @QueryParam("status") String status, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempting to get seats");
-        return new ArrayList<SeatDTO>();
+
+        LocalDateTime date = dateParam.getLocalDateTime();
+        ArrayList<SeatDTO> seats = new ArrayList<SeatDTO>();
+
+        try {
+            em.getTransaction().begin();
+            TypedQuery<Seat> seatQuery = em
+                    .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                    .setParameter("date", date)
+                    .setParameter("status", true);
+
+            for (Seat seat: seatQuery.getResultList()){
+                seats.add(SeatMapper.toDto(seat));
+            }
+
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+        return seats;
     }
 
     //    @POST
