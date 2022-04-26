@@ -1,5 +1,6 @@
 package proj.concert.service.services;
 
+import org.h2.security.auth.Authenticator;
 import proj.concert.common.dto.*;
 import proj.concert.service.common.Config;
 import proj.concert.service.domain.*;
@@ -34,7 +35,7 @@ public class ConcertResource {
     @GET
     @Path("/concerts/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConcertDTO retrieveConcert(@PathParam("id") long id) {
+    public Response retrieveConcert(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving concert with id: " + id);
         ConcertDTO dtoConcert;
         try {
@@ -52,14 +53,17 @@ public class ConcertResource {
             em.close();
         }
 
-        return dtoConcert;
+        return Response
+                .ok(dtoConcert)
+                .cookie(makeCookie(auth))
+                .build();
 
     }
 
     @GET
     @Path("/concerts")
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<ConcertDTO> retrieveAllConcerts() {
+    public Response retrieveAllConcerts(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concerts");
         ArrayList<ConcertDTO> dtoConcerts = new ArrayList<ConcertDTO>();
 
@@ -77,14 +81,17 @@ public class ConcertResource {
             em.close();
         }
 
-        return dtoConcerts;
+        return Response
+                .ok(dtoConcerts)
+                .cookie(makeCookie(auth))
+                .build();
 
     }
 
     @GET
     @Path("/concerts/summaries")
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<ConcertSummaryDTO> retrieveAllConcertSummaries() {
+    public Response retrieveAllConcertSummaries(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concert summaries");
         ArrayList<ConcertSummaryDTO> dtoConcertSummaries = new ArrayList<ConcertSummaryDTO>();
 
@@ -103,13 +110,16 @@ public class ConcertResource {
             em.close();
         }
 
-        return dtoConcertSummaries;
+        return Response
+                .ok(dtoConcertSummaries)
+                .cookie(makeCookie(auth))
+                .build();
     }
 
     @GET
     @Path("/performers/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public PerformerDTO retrievePerformer(@PathParam("id") long id) {
+    public Response retrievePerformer(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving performer with id: " + id);
         PerformerDTO dtoPerformer;
         try {
@@ -127,13 +137,16 @@ public class ConcertResource {
             em.close();
         }
 
-        return dtoPerformer;
+        return Response
+                .ok(dtoPerformer)
+                .cookie(makeCookie(auth))
+                .build();
     }
 
     @GET
     @Path("/performers")
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<PerformerDTO> retrieveAllPerformers() {
+    public Response retrieveAllPerformers(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all performers");
         ArrayList<PerformerDTO> dtoPerformers = new ArrayList<PerformerDTO>();
 
@@ -151,7 +164,10 @@ public class ConcertResource {
             em.close();
         }
 
-        return dtoPerformers;
+        return Response
+                .ok(dtoPerformers)
+                .cookie(makeCookie(auth))
+                .build();
 
     }
 
@@ -215,7 +231,6 @@ public class ConcertResource {
         }
 
         return Response
-                //TODO sort out a good URI
                 .created(URI.create("/concert-service/bookings/" + booking.getId()))
                 .cookie(makeCookie(auth))
                 .build();
@@ -224,7 +239,7 @@ public class ConcertResource {
     @GET
     @Path("/seats/{localDateTime}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<SeatDTO> getSeats(@PathParam("localDateTime") LocalDateTimeParam dateParam, @QueryParam("status") String status, @CookieParam("auth") Cookie auth) {
+    public Response getSeats(@PathParam("localDateTime") LocalDateTimeParam dateParam, @QueryParam("status") String status, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempting to get seats");
 
         LocalDateTime date = dateParam.getLocalDateTime();
@@ -245,15 +260,22 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-        return seats;
+        return Response
+                .ok(seats)
+                .cookie(makeCookie(auth))
+                .build();
     }
 
     @GET
     @Path("/bookings/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public BookingDTO getBookingById(@CookieParam("auth") Cookie auth, @PathParam("id") long bookingId) {
+    public Response getBookingById(@CookieParam("auth") Cookie auth, @PathParam("id") long bookingId) {
         LOGGER.info("Attempting to get booking by id");
         BookingDTO dtoBooking;
+
+        if (auth == null){
+            return Response.status(403).build();
+        }
 
         try {
             em.getTransaction().begin();
@@ -263,7 +285,10 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-        return dtoBooking;
+        return Response
+                .ok(dtoBooking)
+                .cookie(makeCookie(auth))
+                .build();
     }
 
 
