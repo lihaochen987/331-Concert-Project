@@ -266,6 +266,7 @@ public class ConcertResource {
         try {
             em.getTransaction().begin();
 
+            //TODO Can't be bothered mapping the BookingStatus Enum to Seats
             if (status.equals("Any")){
                 seatQuery = em
                         .createQuery("select s from Seat s where s.date=:date", Seat.class)
