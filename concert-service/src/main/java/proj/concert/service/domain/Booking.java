@@ -31,6 +31,10 @@ public class Booking {
     @JoinColumn(name = "SEATS")
     private List<Seat> seats = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    private User user;
+
     public Booking() {
     }
 
@@ -66,5 +70,15 @@ public class Booking {
         this.seats = seats;
     }
 
-    public long getId(){return id;}
+    public long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

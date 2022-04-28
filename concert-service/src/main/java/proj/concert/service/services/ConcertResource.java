@@ -168,7 +168,8 @@ public class ConcertResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(UserDTO creds, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempting to login");
-        User user;
+        NewCookie newCookie = new NewCookie("auth", UUID.randomUUID().toString());
+        LOGGER.info("Generated cookie: " + newCookie.getValue());
         try {
             em.getTransaction().begin();
 
@@ -182,14 +183,13 @@ public class ConcertResource {
                 return Response.status(401).build();
             }
 
-            user = query.getSingleResult();
+            User user = query.getSingleResult();
+            user.setToken(newCookie.getValue());
+            em.merge(user);
             em.getTransaction().commit();
         } finally {
             em.close();
         }
-
-        NewCookie newCookie = new NewCookie("auth", UUID.randomUUID().toString());
-        LOGGER.info("Generated cookie: " + newCookie.getValue());
 
         return Response
                 .ok()
@@ -200,18 +200,22 @@ public class ConcertResource {
     @POST
     @Path("/bookings")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) {
+    public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) throws Exception {
         LOGGER.info("Attempt to create a booking request");
+        System.out.println(auth.getValue());
+
         ArrayList<Seat> seats = new ArrayList<Seat>();
         Booking booking;
+        User user;
 
-        if (auth == null){
+        if (auth == null) {
             return Response.status(401).build();
         }
 
         try {
             em.getTransaction().begin();
-            for (String seatLabel: bReq.getSeatLabels()){
+            user = authenticate(auth);
+            for (String seatLabel : bReq.getSeatLabels()) {
                 TypedQuery<Seat> seat = em
                         .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
                         .setParameter("label", seatLabel)
@@ -221,6 +225,7 @@ public class ConcertResource {
             }
 
             booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
+            booking.setUser(user);
             em.persist(booking);
             em.getTransaction().commit();
         } finally {
@@ -248,7 +253,7 @@ public class ConcertResource {
                     .setParameter("date", date)
                     .setParameter("status", true);
 
-            for (Seat seat: seatQuery.getResultList()){
+            for (Seat seat : seatQuery.getResultList()) {
                 seats.add(SeatMapper.toDto(seat));
             }
 
@@ -266,25 +271,48 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBookingById(@CookieParam("auth") Cookie auth, @PathParam("id") long bookingId) {
         LOGGER.info("Attempting to get booking by id");
-        System.out.println(auth.getName());
-        System.out.println(auth.getValue());
         BookingDTO dtoBooking;
+        User user;
 
-        if (auth == null){
+        if (auth == null) {
             return Response.status(403).build();
         }
 
         try {
             em.getTransaction().begin();
+            user = authenticate(auth);
             Booking booking = em.find(Booking.class, bookingId);
             dtoBooking = BookingMapper.toDto(booking);
+
+            if (booking.getUser().equals(user)){
+                return Response
+                        .ok(dtoBooking)
+                        .build();
+            }
+
             em.getTransaction().commit();
+        } catch (Exception e) {
+            return Response.status(401).build();
         } finally {
             em.close();
         }
-        return Response
-                .ok(dtoBooking)
-                .build();
+        return Response.status(403).build();
+    }
+
+    public User authenticate(Cookie cookie) throws Exception {
+        LOGGER.info("Searching cookie " + cookie.getValue());
+        String token = cookie.getValue();
+        User user;
+        TypedQuery<User> query = em
+                .createQuery("select u from User u where u.token=:token", User.class)
+                .setParameter("token", token);
+
+        if (query.getResultList().isEmpty()) {
+            throw new Exception();
+        }
+
+        user = query.getSingleResult();
+        return user;
     }
 
 
@@ -363,7 +391,7 @@ public class ConcertResource {
         return newCookie;
     }
 
-    private Cookie passCookie (@CookieParam("auth") Cookie auth){
+    private Cookie passCookie(@CookieParam("auth") Cookie auth) {
         return auth;
     }
 }

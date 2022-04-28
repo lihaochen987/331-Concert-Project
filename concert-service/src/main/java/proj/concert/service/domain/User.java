@@ -4,6 +4,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "User")
 @Table(name = "USERS")
@@ -21,6 +23,12 @@ public class User {
 
     @Column(name = "PASSWORD")
     private String password;
+
+    @Column(name = "TOKEN")
+    private String token;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
 
     protected User() {
     }
@@ -46,6 +54,21 @@ public class User {
         this.id = id;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
+    }
 
     @Override
     public boolean equals(Object o) {
