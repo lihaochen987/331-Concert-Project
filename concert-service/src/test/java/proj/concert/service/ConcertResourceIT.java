@@ -384,7 +384,7 @@ public class ConcertResourceIT {
 //        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
 //
 //    }
-
+//
 //    /**
 //     * Test that multiple users are each able to access all of their own bookings. No user should be able to see
 //     * the bookings of any other user.
@@ -466,66 +466,66 @@ public class ConcertResourceIT {
 //        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 //    }
 //
-    /**
-     * Tests that a 400 error is returned when trying to book seats for a nonexistent concert.
-     */
-    @Test
-    public void testAttemptBookingIncorrectConcertId() {
-        // Log in
-        login(client, "testuser", "pa55word");
-
-        // Attempt booking - should fail with bad request
-        Response response = attemptBooking(client, 100,
-                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
-                "C5", "C6");
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-    }
-//
 //    /**
-//     * Tests that a 403 error is returned when trying to book a set of seats, all of which have already been booked.
-//     * Also makes sure that the original booker of those seats retains those seats, and the new user does not.
+//     * Tests that a 400 error is returned when trying to book seats for a nonexistent concert.
 //     */
 //    @Test
-//    public void testAttemptDoubleBooking_SameSeats() {
-//        // Log in as user 1
+//    public void testAttemptBookingIncorrectConcertId() {
+//        // Log in
 //        login(client, "testuser", "pa55word");
 //
-//        // Make bookings for user 1
-//        Response response = attemptBooking(client, 1,
+//        // Attempt booking - should fail with bad request
+//        Response response = attemptBooking(client, 100,
 //                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
 //                "C5", "C6");
-//        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-//
-//        // Log in as user 2
-//        Client user2Client = ClientBuilder.newClient();
-//        try {
-//            login(user2Client, "testuser2", "pa55word");
-//
-//            // Try to make the same booking for user 2 - it should fail.
-//            response = attemptBooking(user2Client, 1,
-//                    LocalDateTime.of(2020, 2, 15, 20, 0, 0),
-//                    "C5", "C6");
-//            assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
-//            assertNull(response.getLocation());
-//
-//            // Make sure user 1 still has the booking, and user 2 does not.
-//
-//            // Get user 1's bookings
-//            List<BookingDTO> user1Bookings = client.target(WEB_SERVICE_URI + "/bookings")
-//                    .request().get(new GenericType<List<BookingDTO>>() {
-//                    });
-//            assertEquals(1, user1Bookings.size());
-//
-//
-//            // Get user 2's bookings
-//            List<BookingDTO> user2Bookings = user2Client.target(WEB_SERVICE_URI + "/bookings")
-//                    .request().get(new GenericType<List<BookingDTO>>() {
-//                    });
-//            assertEquals(0, user2Bookings.size());
-//        } finally {
-//            user2Client.close();
-//        }
+//        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 //    }
+//
+    /**
+     * Tests that a 403 error is returned when trying to book a set of seats, all of which have already been booked.
+     * Also makes sure that the original booker of those seats retains those seats, and the new user does not.
+     */
+    @Test
+    public void testAttemptDoubleBooking_SameSeats() {
+        // Log in as user 1
+        login(client, "testuser", "pa55word");
+
+        // Make bookings for user 1
+        Response response = attemptBooking(client, 1,
+                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
+                "C5", "C6");
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        // Log in as user 2
+        Client user2Client = ClientBuilder.newClient();
+        try {
+            login(user2Client, "testuser2", "pa55word");
+
+            // Try to make the same booking for user 2 - it should fail.
+            response = attemptBooking(user2Client, 1,
+                    LocalDateTime.of(2020, 2, 15, 20, 0, 0),
+                    "C5", "C6");
+            assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+            assertNull(response.getLocation());
+
+            // Make sure user 1 still has the booking, and user 2 does not.
+
+            // Get user 1's bookings
+            List<BookingDTO> user1Bookings = client.target(WEB_SERVICE_URI + "/bookings")
+                    .request().get(new GenericType<List<BookingDTO>>() {
+                    });
+            assertEquals(1, user1Bookings.size());
+
+
+            // Get user 2's bookings
+            List<BookingDTO> user2Bookings = user2Client.target(WEB_SERVICE_URI + "/bookings")
+                    .request().get(new GenericType<List<BookingDTO>>() {
+                    });
+            assertEquals(0, user2Bookings.size());
+        } finally {
+            user2Client.close();
+        }
+    }
 //
 //    /**
 //     * Tests that a 403 error is returned when trying to book a set of seats, some of which have already been booked.

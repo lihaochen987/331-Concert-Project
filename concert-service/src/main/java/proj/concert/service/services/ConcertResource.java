@@ -8,6 +8,7 @@ import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.*;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
@@ -224,6 +225,9 @@ public class ConcertResource {
                     return Response.status(400).build();
                 }
 
+                if (seat.getSingleResult().getBookingStatus()){
+                    return Response.status(403).build();
+                }
                 seat.getSingleResult().setBookingStatus(true);
                 seats.add(seat.getSingleResult());
             }
