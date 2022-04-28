@@ -206,6 +206,7 @@ public class ConcertResource {
         ArrayList<Seat> seats = new ArrayList<Seat>();
         Booking booking;
         User user;
+        Concert concert;
 
         if (auth == null) {
             return Response.status(401).build();
@@ -213,7 +214,6 @@ public class ConcertResource {
 
         try {
             em.getTransaction().begin();
-            user = authenticate(auth);
             for (String seatLabel : bReq.getSeatLabels()) {
                 TypedQuery<Seat> seat = em
                         .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
@@ -226,6 +226,13 @@ public class ConcertResource {
 
                 seat.getSingleResult().setBookingStatus(true);
                 seats.add(seat.getSingleResult());
+            }
+
+            user = authenticate(auth);
+
+            concert = em.find(Concert.class, bReq.getConcertId());
+            if (concert == null){
+                return Response.status(400).build();
             }
 
             booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
