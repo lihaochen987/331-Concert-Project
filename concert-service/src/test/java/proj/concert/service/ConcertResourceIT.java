@@ -609,38 +609,11 @@ public class ConcertResourceIT {
 //        assertEquals("C6", bookedSeats.get(1).getLabel());
 //    }
 //
-    /**
-     * Tests that the unbooked seats for a particular concert on a particular date can be queried.
-     */
-    @Test
-    public void testGetUnbookedSeatsForDate() {
-        // Log in
-        login(client, "testuser", "pa55word");
-
-        // Book some seats
-        Response response = attemptBooking(client, 1,
-                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
-                "C5", "C6");
-
-        // Get unbooked seats - should be everything except C5 and C6
-        List<SeatDTO> unbookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Unbooked")
-                .request().get(new GenericType<List<SeatDTO>>() {
-                });
-
-        assertEquals(118, unbookedSeats.size());
-        unbookedSeats.sort(Comparator.comparing(SeatDTO::getLabel));
-        for (SeatDTO seat : unbookedSeats) {
-            if (seat.getLabel().equals("C5") || seat.getLabel().equals("C6")) {
-                fail("Shouldn't have seen C5 or C6.");
-            }
-        }
-    }
-//
 //    /**
-//     * Tests that all seats for a particular concert on a particular date can be queried.
+//     * Tests that the unbooked seats for a particular concert on a particular date can be queried.
 //     */
 //    @Test
-//    public void testGetAllSeatsForDate() {
+//    public void testGetUnbookedSeatsForDate() {
 //        // Log in
 //        login(client, "testuser", "pa55word");
 //
@@ -649,20 +622,47 @@ public class ConcertResourceIT {
 //                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
 //                "C5", "C6");
 //
-//        // Get hopefully all seats
-//        List<SeatDTO> seats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Any")
+//        // Get unbooked seats - should be everything except C5 and C6
+//        List<SeatDTO> unbookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Unbooked")
 //                .request().get(new GenericType<List<SeatDTO>>() {
 //                });
 //
-//        assertEquals(120, seats.size());
-//        List<String> labels = seats.stream().map(SeatDTO::getLabel).collect(Collectors.toList());
-//        for (char rowLabel = 'A'; rowLabel <= 'J'; rowLabel++) {
-//            for (int num = 1; num <= 12; num++) {
-//                String label = "" + rowLabel + num;
-//                assertTrue(labels.contains(label));
+//        assertEquals(118, unbookedSeats.size());
+//        unbookedSeats.sort(Comparator.comparing(SeatDTO::getLabel));
+//        for (SeatDTO seat : unbookedSeats) {
+//            if (seat.getLabel().equals("C5") || seat.getLabel().equals("C6")) {
+//                fail("Shouldn't have seen C5 or C6.");
 //            }
 //        }
 //    }
+//
+    /**
+     * Tests that all seats for a particular concert on a particular date can be queried.
+     */
+    @Test
+    public void testGetAllSeatsForDate() {
+        // Log in
+        login(client, "testuser", "pa55word");
+
+        // Book some seats
+        Response response = attemptBooking(client, 1,
+                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
+                "C5", "C6");
+
+        // Get hopefully all seats
+        List<SeatDTO> seats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Any")
+                .request().get(new GenericType<List<SeatDTO>>() {
+                });
+
+        assertEquals(120, seats.size());
+        List<String> labels = seats.stream().map(SeatDTO::getLabel).collect(Collectors.toList());
+        for (char rowLabel = 'A'; rowLabel <= 'J'; rowLabel++) {
+            for (int num = 1; num <= 12; num++) {
+                String label = "" + rowLabel + num;
+                assertTrue(labels.contains(label));
+            }
+        }
+    }
 //
 //    // Tests for publish / subscribe functions - uncomment when ready.
 //    // --------------------------------------------------------------------

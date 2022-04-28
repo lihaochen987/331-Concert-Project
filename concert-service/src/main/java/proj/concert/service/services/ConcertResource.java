@@ -257,6 +257,7 @@ public class ConcertResource {
 
         LocalDateTime date = dateParam.getLocalDateTime();
         ArrayList<SeatDTO> seats = new ArrayList<SeatDTO>();
+        TypedQuery<Seat> seatQuery;
 
         // TODO Completes the tests for now, but doesn't utilise the BookingStatus Enum at all
         boolean getStatus;
@@ -264,10 +265,17 @@ public class ConcertResource {
 
         try {
             em.getTransaction().begin();
-            TypedQuery<Seat> seatQuery = em
-                    .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                    .setParameter("date", date)
-                    .setParameter("status", getStatus);
+
+            if (status.equals("Any")){
+                seatQuery = em
+                        .createQuery("select s from Seat s where s.date=:date", Seat.class)
+                        .setParameter("date", date);
+            } else {
+                seatQuery = em
+                        .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                        .setParameter("date", date)
+                        .setParameter("status", getStatus);
+            }
 
             for (Seat seat : seatQuery.getResultList()) {
                 seats.add(SeatMapper.toDto(seat));
