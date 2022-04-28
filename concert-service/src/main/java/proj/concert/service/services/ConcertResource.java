@@ -15,10 +15,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
@@ -261,12 +258,16 @@ public class ConcertResource {
         LocalDateTime date = dateParam.getLocalDateTime();
         ArrayList<SeatDTO> seats = new ArrayList<SeatDTO>();
 
+        // TODO Completes the tests for now, but doesn't utilise the BookingStatus Enum at all
+        boolean getStatus;
+        getStatus = status.equals("Booked");
+
         try {
             em.getTransaction().begin();
             TypedQuery<Seat> seatQuery = em
                     .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
                     .setParameter("date", date)
-                    .setParameter("status", true);
+                    .setParameter("status", getStatus);
 
             for (Seat seat : seatQuery.getResultList()) {
                 seats.add(SeatMapper.toDto(seat));
