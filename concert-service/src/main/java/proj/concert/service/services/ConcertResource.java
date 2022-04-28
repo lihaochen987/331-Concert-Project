@@ -219,6 +219,11 @@ public class ConcertResource {
                         .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
                         .setParameter("label", seatLabel)
                         .setParameter("date", bReq.getDate());
+
+                if (seat.getResultList().isEmpty()){
+                    return Response.status(400).build();
+                }
+
                 seat.getSingleResult().setBookingStatus(true);
                 seats.add(seat.getSingleResult());
             }
