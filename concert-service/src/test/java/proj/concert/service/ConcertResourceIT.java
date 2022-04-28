@@ -527,78 +527,53 @@ public class ConcertResourceIT {
 //        }
 //    }
 //
-    /**
-     * Tests that a 403 error is returned when trying to book a set of seats, some of which have already been booked.
-     * Also makes sure that the original user retains their booking, and that the second booking is not partially
-     * completed (i.e. NO seats from the second booking request should be booked, even if some of them are available).
-     */
-    @Test
-    public void testAttemptDoubleBooking_OverlappingSeats() {
-        // Log in as user 1
-        login(client, "testuser", "pa55word");
-
-        // Make bookings for user 1
-        Response response = attemptBooking(client, 1,
-                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
-                "C5", "C6");
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-
-        // Log in as user 2
-        Client user2Client = ClientBuilder.newClient();
-        try {
-            login(user2Client, "testuser2", "pa55word");
-
-            // Try to make the same booking for user 2 - it should fail.
-            response = attemptBooking(user2Client, 1,
-                    LocalDateTime.of(2020, 2, 15, 20, 0, 0),
-                    "C6", "C7");
-            assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
-            assertNull(response.getLocation());
-
-            // Make sure user 1 still has the booking, and user 2 does not.
-
-            // Get user 1's bookings
-            List<BookingDTO> user1Bookings = client.target(WEB_SERVICE_URI + "/bookings")
-                    .request().get(new GenericType<List<BookingDTO>>() {
-                    });
-            assertEquals(1, user1Bookings.size());
-
-
-            // Get user 2's bookings
-            List<BookingDTO> user2Bookings = user2Client.target(WEB_SERVICE_URI + "/bookings")
-                    .request().get(new GenericType<List<BookingDTO>>() {
-                    });
-            assertEquals(0, user2Bookings.size());
-        } finally {
-            user2Client.close();
-        }
-
-        // Make sure only seats C5 and C6 are booked. C7 shouldn't be booked.
-        List<SeatDTO> bookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Booked")
-                .request().get(new GenericType<List<SeatDTO>>() {
-                });
-
-        assertEquals(2, bookedSeats.size());
-        bookedSeats.sort(Comparator.comparing(SeatDTO::getLabel));
-        assertEquals("C5", bookedSeats.get(0).getLabel());
-        assertEquals("C6", bookedSeats.get(1).getLabel());
-
-    }
-//
 //    /**
-//     * Tests that the booked seats for a particular concert on a particular date can be queried.
+//     * Tests that a 403 error is returned when trying to book a set of seats, some of which have already been booked.
+//     * Also makes sure that the original user retains their booking, and that the second booking is not partially
+//     * completed (i.e. NO seats from the second booking request should be booked, even if some of them are available).
 //     */
 //    @Test
-//    public void testGetBookedSeatsForDate() {
-//        // Log in
+//    public void testAttemptDoubleBooking_OverlappingSeats() {
+//        // Log in as user 1
 //        login(client, "testuser", "pa55word");
 //
-//        // Book some seats
+//        // Make bookings for user 1
 //        Response response = attemptBooking(client, 1,
 //                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
 //                "C5", "C6");
+//        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 //
-//        // Get booked seats - should be C5 and C6
+//        // Log in as user 2
+//        Client user2Client = ClientBuilder.newClient();
+//        try {
+//            login(user2Client, "testuser2", "pa55word");
+//
+//            // Try to make the same booking for user 2 - it should fail.
+//            response = attemptBooking(user2Client, 1,
+//                    LocalDateTime.of(2020, 2, 15, 20, 0, 0),
+//                    "C6", "C7");
+//            assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+//            assertNull(response.getLocation());
+//
+//            // Make sure user 1 still has the booking, and user 2 does not.
+//
+//            // Get user 1's bookings
+//            List<BookingDTO> user1Bookings = client.target(WEB_SERVICE_URI + "/bookings")
+//                    .request().get(new GenericType<List<BookingDTO>>() {
+//                    });
+//            assertEquals(1, user1Bookings.size());
+//
+//
+//            // Get user 2's bookings
+//            List<BookingDTO> user2Bookings = user2Client.target(WEB_SERVICE_URI + "/bookings")
+//                    .request().get(new GenericType<List<BookingDTO>>() {
+//                    });
+//            assertEquals(0, user2Bookings.size());
+//        } finally {
+//            user2Client.close();
+//        }
+//
+//        // Make sure only seats C5 and C6 are booked. C7 shouldn't be booked.
 //        List<SeatDTO> bookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Booked")
 //                .request().get(new GenericType<List<SeatDTO>>() {
 //                });
@@ -607,7 +582,32 @@ public class ConcertResourceIT {
 //        bookedSeats.sort(Comparator.comparing(SeatDTO::getLabel));
 //        assertEquals("C5", bookedSeats.get(0).getLabel());
 //        assertEquals("C6", bookedSeats.get(1).getLabel());
+//
 //    }
+//
+    /**
+     * Tests that the booked seats for a particular concert on a particular date can be queried.
+     */
+    @Test
+    public void testGetBookedSeatsForDate() {
+        // Log in
+        login(client, "testuser", "pa55word");
+
+        // Book some seats
+        Response response = attemptBooking(client, 1,
+                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
+                "C5", "C6");
+
+        // Get booked seats - should be C5 and C6
+        List<SeatDTO> bookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Booked")
+                .request().get(new GenericType<List<SeatDTO>>() {
+                });
+
+        assertEquals(2, bookedSeats.size());
+        bookedSeats.sort(Comparator.comparing(SeatDTO::getLabel));
+        assertEquals("C5", bookedSeats.get(0).getLabel());
+        assertEquals("C6", bookedSeats.get(1).getLabel());
+    }
 //
 //    /**
 //     * Tests that the unbooked seats for a particular concert on a particular date can be queried.
