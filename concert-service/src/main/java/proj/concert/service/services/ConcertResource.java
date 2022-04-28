@@ -283,7 +283,7 @@ public class ConcertResource {
             Booking booking = em.find(Booking.class, bookingId);
             dtoBooking = BookingMapper.toDto(booking);
 
-            if (booking.getUser().equals(user)){
+            if (booking.getUser().equals(user)) {
                 return Response
                         .ok(dtoBooking)
                         .build();
@@ -314,71 +314,32 @@ public class ConcertResource {
         return user;
     }
 
+    @GET
+    @Path("/bookings")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserBookings(@CookieParam("auth") Cookie auth) {
+        LOGGER.info("Attempting to get user bookings");
+        ArrayList<BookingDTO> bookingDTOS = new ArrayList<BookingDTO>();
+        try {
+            em.getTransaction().begin();
+            User user = authenticate(auth);
 
-    //    @POST
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public Response createConcert(ConcertDTO dtoConcert) {
-//        Concert concert = ConcertMapper.toDomainModel(dtoConcert);
-//        try {
-//            em.getTransaction().begin();
-//            em.persist(concert);
-//            em.getTransaction().commit();
-//        } finally {
-//            em.close();
-//        }
-//
-//        return Response.created(URI.create("/concerts/" + concert.getId()))
-//                .build();
-//    }
-//
-//    @PUT
-//    public Response updateConcert(Concert concert) {
-//        try {
-//            em.getTransaction().begin();
-//            em.merge(concert);
-//            em.getTransaction().commit();
-//        } catch (IllegalArgumentException e) {
-//            throw new WebApplicationException(Response.Status.NOT_FOUND);
-//        } finally {
-//            em.close();
-//        }
-//
-//        return Response.noContent().build();
-//    }
-//
-//    @DELETE
-//    @Path("/{id}")
-//    public Response deleteSingleConcert(@PathParam("id") long id) {
-//        Concert concert;
-//        try {
-//            em.getTransaction().begin();
-//            concert = em.find(Concert.class, id);
-//            if(concert == null) {
-//                throw new WebApplicationException(Response.Status.NOT_FOUND);
-//            }
-//
-//            em.remove(concert);
-//            em.getTransaction().commit();
-//        } finally {
-//            em.close();
-//        }
-//
-//        return Response.noContent().build();
-//    }
-//
-//
-//    @DELETE
-//    public Response deleteAllConcerts() {
-//        try {
-//            em.getTransaction().begin();
-////            em.createQuery("DELETE FROM Concert");
-//            em.getTransaction().commit();
-//        } finally {
-//            em.close();
-//        }
-//
-//        return Response.noContent().build();
-//    }
+            List<Booking> bookings = user.getBookings();
+            for (Booking booking: bookings){
+                bookingDTOS.add(BookingMapper.toDto(booking));
+            }
+
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            return Response.status(401).build();
+        } finally {
+            em.close();
+        }
+        return Response
+                .ok(bookingDTOS)
+                .build();
+    }
+
     private NewCookie makeCookie(String username, @CookieParam("auth") Cookie auth) {
         NewCookie newCookie = null;
 
