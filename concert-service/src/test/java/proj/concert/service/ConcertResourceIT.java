@@ -269,33 +269,33 @@ public class ConcertResourceIT {
 //        assertFalse(authCookie.getValue().isEmpty());
 //    }
 //
-//    /**
-//     * Tests that a 401 error is returned when attempting to book while not logged in, and that no booking is actually
-//     * made.
-//     */
-//    @Test
-//    public void testAttemptUnauthorizedBooking() {
-//
-//        List<String> seatLabels = Arrays.asList("C5", "C6");
-//
-//        BookingRequestDTO bReq = new BookingRequestDTO(
-//                1, LocalDateTime.of(2020, 2, 15, 20, 0, 0), seatLabels);
-//
-//        // Try to book
-//        Response response = client.target(WEB_SERVICE_URI + "/bookings")
-//                .request().post(Entity.json(bReq));
-//
-//        // Make sure it didn't work
-//        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
-//
-//        // Make sure no seats were booked
-//        List<SeatDTO> bookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Booked")
-//                .request().get(new GenericType<List<SeatDTO>>() {
-//                });
-//
-//        assertEquals(0, bookedSeats.size());
-//
-//    }
+    /**
+     * Tests that a 401 error is returned when attempting to book while not logged in, and that no booking is actually
+     * made.
+     */
+    @Test
+    public void testAttemptUnauthorizedBooking() {
+
+        List<String> seatLabels = Arrays.asList("C5", "C6");
+
+        BookingRequestDTO bReq = new BookingRequestDTO(
+                1, LocalDateTime.of(2020, 2, 15, 20, 0, 0), seatLabels);
+
+        // Try to book
+        Response response = client.target(WEB_SERVICE_URI + "/bookings")
+                .request().post(Entity.json(bReq));
+
+        // Make sure it didn't work
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+
+        // Make sure no seats were booked
+        List<SeatDTO> bookedSeats = client.target(WEB_SERVICE_URI + "/seats/2020-02-15T20:00:00?status=Booked")
+                .request().get(new GenericType<List<SeatDTO>>() {
+                });
+
+        assertEquals(0, bookedSeats.size());
+
+    }
 //
 //    /**
 //     * Tests that a 201 response is returned when making a valid authorized booking, and that the requested seats now
@@ -354,36 +354,36 @@ public class ConcertResourceIT {
 //
 //    }
 //
-    /**
-     * Tests that a 403 error is returned when trying to access a booking of another user,
-     * even if the correct id is known.
-     */
-    @Test
-    public void testAttemptGetOthersBookingById() {
-
-        // Log in
-        login(client, "testuser", "pa55word");
-
-        // Make booking
-        Response bookingResponse = attemptBooking(client, 1,
-                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
-                "C5", "C6");
-
-        // Get the booking
-        Response response = client.target(bookingResponse.getLocation())
-                .request().get();
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        // Log in as someone else
-        login(client, "testuser2", "pa55word");
-
-        // Attempt to get the booking - should fail
-        response = client.target(bookingResponse.getLocation())
-                .request().get();
-
-        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
-
-    }
+//    /**
+//     * Tests that a 403 error is returned when trying to access a booking of another user,
+//     * even if the correct id is known.
+//     */
+//    @Test
+//    public void testAttemptGetOthersBookingById() {
+//
+//        // Log in
+//        login(client, "testuser", "pa55word");
+//
+//        // Make booking
+//        Response bookingResponse = attemptBooking(client, 1,
+//                LocalDateTime.of(2020, 2, 15, 20, 0, 0),
+//                "C5", "C6");
+//
+//        // Get the booking
+//        Response response = client.target(bookingResponse.getLocation())
+//                .request().get();
+//        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+//
+//        // Log in as someone else
+//        login(client, "testuser2", "pa55word");
+//
+//        // Attempt to get the booking - should fail
+//        response = client.target(bookingResponse.getLocation())
+//                .request().get();
+//
+//        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+//
+//    }
 //
 //    /**
 //     * Test that multiple users are each able to access all of their own bookings. No user should be able to see

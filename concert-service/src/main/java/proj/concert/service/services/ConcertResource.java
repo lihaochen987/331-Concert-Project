@@ -202,7 +202,6 @@ public class ConcertResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) throws Exception {
         LOGGER.info("Attempt to create a booking request");
-        System.out.println(auth.getValue());
 
         ArrayList<Seat> seats = new ArrayList<Seat>();
         Booking booking;
