@@ -12,10 +12,13 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.Future;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
@@ -324,6 +327,8 @@ public class ConcertResource {
         return Response.status(403).build();
     }
 
+
+    // Look at creating custom exception for this
     public User authenticate(Cookie cookie) throws Exception {
         LOGGER.info("Searching cookie " + cookie.getValue());
         String token = cookie.getValue();
@@ -364,6 +369,20 @@ public class ConcertResource {
         return Response
                 .ok(bookingDTOS)
                 .build();
+    }
+
+    @POST
+    @Path("/subscribe/concertInfo")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) {
+        LOGGER.info("Attempting to subscribe user to concert");
+        if(auth == null) {
+            LOGGER.info("TESTING");
+            return Response.status(401).build();
+        }
+        else {
+            return Response.noContent().build();
+        }
     }
 
     private NewCookie makeCookie(String username, @CookieParam("auth") Cookie auth) {
