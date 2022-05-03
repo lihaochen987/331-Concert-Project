@@ -30,6 +30,8 @@ public class ConcertResource {
 
     private Map<Long, Concert> concertDB;
 
+    private final List<AsyncResponse> subs = new Vector<>();
+
     @GET
     @Path("/concerts/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -374,14 +376,11 @@ public class ConcertResource {
     @POST
     @Path("/subscribe/concertInfo")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) {
+    public void subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) {
         LOGGER.info("Attempting to subscribe user to concert");
+        subs.add(sub);
         if(auth == null) {
-            LOGGER.info("TESTING");
-            return Response.status(401).build();
-        }
-        else {
-            return Response.noContent().build();
+            sub.resume(Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }
 
