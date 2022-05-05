@@ -18,6 +18,8 @@ import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
@@ -29,9 +31,6 @@ public class ConcertResource {
     private EntityManager em = PersistenceManager.instance().createEntityManager();
 
     private Map<Long, Concert> concertDB;
-
-    private final List<AsyncResponse> subs2 = new Vector<>();
-    private final Map<AsyncResponse, ConcertInfoSubscriptionDTO> subs = new HashMap<>();
 
     @GET
     @Path("/concerts/{id}")
@@ -250,22 +249,6 @@ public class ConcertResource {
                     .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
                     .setParameter("date", booking.getDate())
                     .setParameter("status", false);
-            synchronized (subs2) {
-                int percentageFree = (int) (((double) seatQuery.getResultList().size()) / 120.0) * 100;
-                ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
-                //LOGGER.info(subs.size());
-                //LOGGER.info(subs2.size());
-                for (Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
-                    LOGGER.info("oijewioffjs");
-                    if (percentageFree < entry.getValue().getPercentageBooked() && entry.getValue().getConcertId() == booking.getConcertId()) {
-                        entry.getKey().resume(notif);
-                        LOGGER.info("owiejf");
-                        subs.remove(entry.getKey());
-                    }
-                }
-            }
-
-
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -399,9 +382,8 @@ public class ConcertResource {
     @Path("/subscribe/concertInfo")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) {
+    public void subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) throws InterruptedException {
         LOGGER.info("Attempting to subscribe user to concert");
-        LOGGER.error("woiejfowiejfiowj");
         if(auth == null) {
             sub.resume(Response.status(Response.Status.UNAUTHORIZED).build());
         }else {
@@ -410,38 +392,25 @@ public class ConcertResource {
                 em.getTransaction().begin();
 
                 // Check ConcertInfoSubscriptionDTO values
-
-
                 Concert concert = em.find(Concert.class, subscriptionDTO.getConcertId());
 
-                if (concert == null) {
+                if (concert == null || !concert.getDates().contains(subscriptionDTO.getDate())) {
                     sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
                 } else {
-                    Set<LocalDateTime> dates = concert.getDates();
-                    if (!dates.contains(subscriptionDTO.getDate())) {
-                        LOGGER.info("REACHED");
-                        sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
-                    } else {
-                        TypedQuery<Seat> seatQuery = em
-                                .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                                .setParameter("date", subscriptionDTO.getDate())
-                                .setParameter("status", false);
-                        LOGGER.info((((double) seatQuery.getResultList().size()) / 120.0));
-                        int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
-                        LOGGER.info(percentageFree);
-                        LOGGER.info(seatQuery.getResultList().size());
-                        while (percentageFree > subscriptionDTO.getPercentageBooked()) {
-                            percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
-                        }
-                        ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
-                        LOGGER.info(percentageFree);
-                        LOGGER.info(seatQuery.getResultList().size());
-                        LOGGER.info("oijewioffjs");
-                        if (percentageFree < subscriptionDTO.getPercentageBooked()) {
-                            sub.resume(notif);
-                            LOGGER.info("owiejf");
-                        }
+                    TypedQuery<Seat> seatQuery = em
+                            .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                            .setParameter("date", subscriptionDTO.getDate())
+                            .setParameter("status", false);
+
+                    int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
+
+                    while (percentageFree > subscriptionDTO.getPercentageBooked()) {
+                        percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
+                        // Potentially add some thread.sleep
                     }
+                    ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
+
+                    sub.resume(notif);
                 }
 
 
