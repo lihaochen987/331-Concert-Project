@@ -53,13 +53,13 @@ public class ConcertSubscriptionIT {
         client.close();
         client = null;
     }
-//
-//    // Tests for publish / subscribe functions - uncomment when ready.
-//    // --------------------------------------------------------------------
-//
-//    /**
-//     * Tests that a 401 error is returned when trying to make a subscription while not authenticated.
-//     */
+
+    // Tests for publish / subscribe functions - uncomment when ready.
+    // --------------------------------------------------------------------
+
+    /**
+     * Tests that a 401 error is returned when trying to make a subscription while not authenticated.
+     */
     @Test
     public void testUnauthorizedSubscription() throws InterruptedException, ExecutionException, TimeoutException {
         // Attempt to subscribe
@@ -73,19 +73,19 @@ public class ConcertSubscriptionIT {
 
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
-//
-//    /**
-//     * Tests that a 400 error is returned when trying to make a subscription for a nonexistent concert.
-//     */
-/*    @Test
+
+    /**
+     * Tests that a 400 error is returned when trying to make a subscription for a nonexistent concert.
+     */
+    @Test
     public void testBadSubscription_NonexistentConcert() throws InterruptedException, ExecutionException, TimeoutException {
 
         testBadSubscription(100, LocalDateTime.of(2020, 2, 15, 20, 0, 0));
     }
 
-    *//**
+    /**
      * Tests that a 400 error is returned when trying to make a subscription for a nonexistent date.
-     *//*
+     */
     @Test
     public void testBadSubscription_NonexistentDate() throws InterruptedException, ExecutionException, TimeoutException {
 
@@ -105,7 +105,7 @@ public class ConcertSubscriptionIT {
         Response response = future.get(1, TimeUnit.SECONDS);
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-    }*/
+    }
 
     /**
      * Tests that, when authenticated, a subscription can be made to /subscribe/concertInfo, and that subscribers are

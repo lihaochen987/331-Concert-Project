@@ -404,52 +404,54 @@ public class ConcertResource {
         LOGGER.error("woiejfowiejfiowj");
         if(auth == null) {
             sub.resume(Response.status(Response.Status.UNAUTHORIZED).build());
-        }
-        subs2.add(sub);
-        subs.put(sub, subscriptionDTO);
+        }else {
 
-        try {
-            em.getTransaction().begin();
+            try {
+                em.getTransaction().begin();
 
-            // Check ConcertInfoSubscriptionDTO values
-
-            TypedQuery<Booking> booking = em
-                    .createQuery("select b from BOOKING b where b.date=:date and b.concertId=:concertId", Booking.class)
-                    .setParameter("date", subscriptionDTO.getDate())
-                    .setParameter("concertId", subscriptionDTO.getConcertId());
-
-            if(booking == null) {
-                sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
-            }
+                // Check ConcertInfoSubscriptionDTO values
 
 
-            TypedQuery<Seat> seatQuery = em
-                    .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                    .setParameter("date", subscriptionDTO.getDate())
-                    .setParameter("status", false);
-                LOGGER.info((((double) seatQuery.getResultList().size()) / 120.0));
-                int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
-            LOGGER.info(percentageFree);
-            LOGGER.info(seatQuery.getResultList().size());
-                while(percentageFree > subscriptionDTO.getPercentageBooked()) {
-                    percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
+                Concert concert = em.find(Concert.class, subscriptionDTO.getConcertId());
+
+                if (concert == null) {
+                    sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
+                } else {
+                    Set<LocalDateTime> dates = concert.getDates();
+                    if (!dates.contains(subscriptionDTO.getDate())) {
+                        LOGGER.info("REACHED");
+                        sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
+                    } else {
+                        TypedQuery<Seat> seatQuery = em
+                                .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                                .setParameter("date", subscriptionDTO.getDate())
+                                .setParameter("status", false);
+                        LOGGER.info((((double) seatQuery.getResultList().size()) / 120.0));
+                        int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
+                        LOGGER.info(percentageFree);
+                        LOGGER.info(seatQuery.getResultList().size());
+                        while (percentageFree > subscriptionDTO.getPercentageBooked()) {
+                            percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
+                        }
+                        ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
+                        LOGGER.info(percentageFree);
+                        LOGGER.info(seatQuery.getResultList().size());
+                        LOGGER.info("oijewioffjs");
+                        if (percentageFree < subscriptionDTO.getPercentageBooked()) {
+                            sub.resume(notif);
+                            LOGGER.info("owiejf");
+                        }
+                    }
                 }
-            ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
-            LOGGER.info(percentageFree);
-            LOGGER.info(seatQuery.getResultList().size());
-            LOGGER.info("oijewioffjs");
-            if (percentageFree < subscriptionDTO.getPercentageBooked() && subscriptionDTO.getConcertId() == booking.setMaxResults(1).getSingleResult().getConcertId()) {
-                sub.resume(notif);
-                LOGGER.info("owiejf");
+
+
+                em.getTransaction().commit();
+
+            } finally {
+                em.close();
             }
-
-            em.getTransaction().commit();
-
-        }finally {
-            em.close();
         }
 
-        LOGGER.info(subs2.size());
     }
 
     private NewCookie makeCookie(String username, @CookieParam("auth") Cookie auth) {

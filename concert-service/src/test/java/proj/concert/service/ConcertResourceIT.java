@@ -54,14 +54,12 @@ public class ConcertResourceIT {
         client = null;
     }
 
-/*
-*
+    /**
      * Tests that we can get a single concert from the web service, given its id.
      * <p>
      * The request should return a 200 response, with the requested concert DTO. The concert DTO should contain all
      * performers and dates for that concert.
-
-
+     */
     @Test
     public void testGetSingleConcert() {
 
@@ -70,7 +68,6 @@ public class ConcertResourceIT {
         assertEquals("PTX: The World Tour", concert.getTitle());
         assertEquals("concerts/ptx.jpg", concert.getImageName());
 
-        System.out.println(concert.getPerformers().toString());
         assertEquals(1, concert.getPerformers().size());
 
         PerformerDTO performer = concert.getPerformers().get(0);
@@ -83,11 +80,10 @@ public class ConcertResourceIT {
         assertEquals(LocalDateTime.of(2020, 2, 15, 20, 0, 0), concert.getDates().get(0));
     }
 
-*
+    /**
      * A more advanced version of the test above. Makes sure the web service still functions correctly when requesting
      * a concert with multiple performers and dates.
-
-
+     */
     @Test
     public void testGetSingleConcertWithMultiplePerformersAndDates() {
 
@@ -107,10 +103,9 @@ public class ConcertResourceIT {
         assertEquals(LocalDateTime.of(2019, 9, 7, 20, 0, 0), concert.getDates().get(1));
     }
 
-*
+    /**
      * Tests that a 404 response is returned when requesting a nonexistent concert.
-
-
+     */
     @Test
     public void testGetNonExistentConcert() {
         Response response = client.target(WEB_SERVICE_URI + "/concerts/100").request().get();
@@ -118,10 +113,9 @@ public class ConcertResourceIT {
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
-*
+    /**
      * Tests that all concerts are returned when requested.
-
-
+     */
     @Test
     public void testGetAllConcerts() {
 
@@ -151,11 +145,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that all concert summaries are returned when requested. Concert summaries contain only the id, title, and
      * image name for each concert.
-
-
+     */
     @Test
     public void testGetConcertSummaries() {
 
@@ -180,11 +173,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that a 200 response is returned, along with the correct performer info, when requesting a performer with
      * a given id.
-
-
+     */
     @Test
     public void testGetSinglePerformer() {
 
@@ -196,10 +188,9 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that a 404 response is returned when requesting a nonexistent performer.
-
-
+     */
     @Test
     public void testGetNonExistentPerformer() {
 
@@ -209,10 +200,9 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that all performers are returned when requested.
-
-
+     */
     @Test
     public void testGetAllPerformers() {
 
@@ -240,11 +230,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that a 401 error is returned when an incorrect username is supplied on login, and makes sure that
      * no authentication token is generated.
-
-
+     */
     @Test
     public void testFailedLogin_IncorrectUsername() {
         // Log in
@@ -253,11 +242,10 @@ public class ConcertResourceIT {
         assertNull(loginResponse.getCookies().get("auth"));
     }
 
-*
+    /**
      * Tests that a 401 error is returned when an incorrect password is supplied on login, and makes sure that
      * no authentication token is generated.
-
-
+     */
     @Test
     public void testFailedLogin_IncorrectPassword() {
         // Log in
@@ -266,11 +254,10 @@ public class ConcertResourceIT {
         assertNull(loginResponse.getCookies().get("auth"));
     }
 
-*
+    /**
      * tests that a 200 response is returned when the correct username and password are supplied on login, and that
      * a cookie named "auth" is generated.
-
-
+     */
     @Test
     public void testSuccessfulLogin() {
         // Log in
@@ -281,11 +268,10 @@ public class ConcertResourceIT {
         assertFalse(authCookie.getValue().isEmpty());
     }
 
-*
+    /**
      * Tests that a 401 error is returned when attempting to book while not logged in, and that no booking is actually
      * made.
-
-
+     */
     @Test
     public void testAttemptUnauthorizedBooking() {
 
@@ -310,11 +296,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that a 201 response is returned when making a valid authorized booking, and that the requested seats now
      * are correctly reported as being booked.
-
-
+     */
     @Test
     public void testMakeSuccessfulBooking() {
 
@@ -339,11 +324,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that a 201 response is returned when making a valid authorized booking, and that the link returned
      * allows the user to correctly navigate to the new booking.
-
-
+     */
     @Test
     public void testGetOwnBookingById() {
 
@@ -356,7 +340,6 @@ public class ConcertResourceIT {
                 "C5", "C6");
 
         // Get the booking
-        System.out.println(bookingResponse.getLocation());
         BookingDTO booking = client.target(bookingResponse.getLocation()).request().get(BookingDTO.class);
 
         // Check details
@@ -369,11 +352,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that a 403 error is returned when trying to access a booking of another user,
      * even if the correct id is known.
-
-
+     */
     @Test
     public void testAttemptGetOthersBookingById() {
 
@@ -401,11 +383,10 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Test that multiple users are each able to access all of their own bookings. No user should be able to see
      * the bookings of any other user.
-
-
+     */
     @Test
     public void testGetAllBookingsForUser() {
 
@@ -459,20 +440,18 @@ public class ConcertResourceIT {
         }
     }
 
-*
+    /**
      * Tests that a 401 error is returned when trying to access any booking information while not authenticated.
-
-
+     */
     @Test
     public void testAttemptGetAllBookingsWhenNotAuthenticated() {
         Response response = client.target(WEB_SERVICE_URI + "/bookings").request().get();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
-*
+    /**
      * Tests that a 400 error is returned when trying to book seats for a date on which a given concert is not scheduled.
-
-
+     */
     @Test
     public void testAttemptBookingWrongDate() {
         // Log in
@@ -485,10 +464,9 @@ public class ConcertResourceIT {
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
-*
+    /**
      * Tests that a 400 error is returned when trying to book seats for a nonexistent concert.
-
-
+     */
     @Test
     public void testAttemptBookingIncorrectConcertId() {
         // Log in
@@ -501,11 +479,10 @@ public class ConcertResourceIT {
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
-*
+    /**
      * Tests that a 403 error is returned when trying to book a set of seats, all of which have already been booked.
      * Also makes sure that the original booker of those seats retains those seats, and the new user does not.
-
-
+     */
     @Test
     public void testAttemptDoubleBooking_SameSeats() {
         // Log in as user 1
@@ -548,12 +525,11 @@ public class ConcertResourceIT {
         }
     }
 
-*
+    /**
      * Tests that a 403 error is returned when trying to book a set of seats, some of which have already been booked.
      * Also makes sure that the original user retains their booking, and that the second booking is not partially
      * completed (i.e. NO seats from the second booking request should be booked, even if some of them are available).
-
-
+     */
     @Test
     public void testAttemptDoubleBooking_OverlappingSeats() {
         // Log in as user 1
@@ -607,10 +583,9 @@ public class ConcertResourceIT {
 
     }
 
-*
+    /**
      * Tests that the booked seats for a particular concert on a particular date can be queried.
-
-
+     */
     @Test
     public void testGetBookedSeatsForDate() {
         // Log in
@@ -632,10 +607,9 @@ public class ConcertResourceIT {
         assertEquals("C6", bookedSeats.get(1).getLabel());
     }
 
-*
+    /**
      * Tests that the unbooked seats for a particular concert on a particular date can be queried.
-
-
+     */
     @Test
     public void testGetUnbookedSeatsForDate() {
         // Log in
@@ -660,10 +634,9 @@ public class ConcertResourceIT {
         }
     }
 
-*
+    /**
      * Tests that all seats for a particular concert on a particular date can be queried.
-
-
+     */
     @Test
     public void testGetAllSeatsForDate() {
         // Log in
@@ -688,7 +661,6 @@ public class ConcertResourceIT {
             }
         }
     }
-*/
 
     // Tests for publish / subscribe functions - uncomment when ready.
     // --------------------------------------------------------------------
