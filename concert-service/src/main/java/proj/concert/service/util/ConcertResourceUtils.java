@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 public class ConcertResourceUtils {
+
     // TODO Look at creating custom exception for this
     public static User authenticate(EntityManager em, Cookie cookie) throws Exception {
         LOGGER.info("Searching cookie " + cookie.getValue());
@@ -29,7 +30,16 @@ public class ConcertResourceUtils {
         return user;
     }
 
-    public static Concert findConcert(EntityManager em, Long id){
+    public static Concert findConcert(EntityManager em, Long id, String method){
+        Concert concert = em.find(Concert.class, id);
+        if (concert == null){
+            switch(method){
+                case "GET":
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                case "POST":
+                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+        }
         return em.find(Concert.class, id);
     }
 }

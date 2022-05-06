@@ -5,6 +5,7 @@ import proj.concert.common.types.BookingStatus;
 import proj.concert.service.domain.*;
 import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.*;
+import proj.concert.service.util.ConcertResourceUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -23,35 +24,35 @@ import static proj.concert.service.util.ConcertResourceUtils.findConcert;
 /**
  * This is a class that implements endpoints for a concert application
  * <p>
- *     - GET    <base-uri>/concert-service/concerts/{id}
- *     Retrieves concert from a given id
+ * - GET    <base-uri>/concert-service/concerts/{id}
+ * Retrieves concert from a given id
  * <p>
- *     - GET    <base-uri>/concert-service/concerts
- *     Retrieves all concerts
+ * - GET    <base-uri>/concert-service/concerts
+ * Retrieves all concerts
  * <p>
- *     - GET    <base-uri>/concert-service/concerts/summaries
- *     Retrieves concert summaries
+ * - GET    <base-uri>/concert-service/concerts/summaries
+ * Retrieves concert summaries
  * <p>
- *     - GET    <base-uri>/concert-service/performers/{id}
- *     Retrieves performer from given id
+ * - GET    <base-uri>/concert-service/performers/{id}
+ * Retrieves performer from given id
  * <p>
- *     - GET    <base-uri>/concert-service/performers
- *     Retrieves all performers
+ * - GET    <base-uri>/concert-service/performers
+ * Retrieves all performers
  * <p>
- *     - POST   <base-uri>/login
- *     Login to concert service
+ * - POST   <base-uri>/login
+ * Login to concert service
  * <p>
- *     - POST   <base-uri>/bookings
- *     Makes a booking request
+ * - POST   <base-uri>/bookings
+ * Makes a booking request
  * <p>
- *     - GET    <base-uri>/seats/{localdatetime}
- *     Retrieve seats for a given date
+ * - GET    <base-uri>/seats/{localdatetime}
+ * Retrieve seats for a given date
  * <p>
- *     - GET    <base-uri>/bookings/{id}
- *     Retrieves booking with given id
+ * - GET    <base-uri>/bookings/{id}
+ * Retrieves booking with given id
  * <p>
- *     - GET    <base-uri>/bookings
- *     Retrieves a logged in users bookings
+ * - GET    <base-uri>/bookings
+ * Retrieves a logged in users bookings
  */
 
 @Path("/concert-service")
@@ -63,7 +64,8 @@ public class ConcertResource {
     /**
      * Attempts to retrieve a concert with supplied concertId. If a valid concert is found a concert object
      * will be passed to the client. If no valid concert is found a 404 error is returned to the client
-     * @param id the unique id for a specific concert
+     *
+     * @param id   the unique id for a specific concert
      * @param auth the user auth token
      * @return a JSON object representation of a given concert
      */
@@ -76,26 +78,20 @@ public class ConcertResource {
         Concert concert;
         try {
             em.getTransaction().begin();
-            concert = findConcert(em, id);
-
-            if (concert == null) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-
+            concert = findConcert(em, id, "GET");
             dtoConcert = ConcertMapper.toDto(concert);
             em.getTransaction().commit();
         } finally {
             em.close();
         }
 
-        return Response
-                .ok(dtoConcert)
-                .build();
+        return Response.ok(dtoConcert).build();
 
     }
 
     /**
      * Attempts to retrieve all concerts
+     *
      * @param auth the user auth token
      * @return a JSON object representation of all concerts
      */
@@ -128,6 +124,7 @@ public class ConcertResource {
 
     /**
      * Attempts to retrieve all concert summaries
+     *
      * @param auth the user auth token
      * @return a JSON object representation of all concert summaries
      */
@@ -161,7 +158,8 @@ public class ConcertResource {
     /**
      * Attempts to retrieve a performer with a given id. If a performer is found the performer object
      * will be passed to the client. If the performer is not found a 404 error is returned.
-     * @param id the unique id of a specific concert
+     *
+     * @param id   the unique id of a specific concert
      * @param auth the user auth token
      * @return a JSON object representation of a given performer
      */
@@ -193,6 +191,7 @@ public class ConcertResource {
 
     /**
      * Attempts to retrieve all performers
+     *
      * @param auth the user auth token
      * @return a JSON representation of all performer objects
      */
@@ -227,8 +226,9 @@ public class ConcertResource {
      * Attempts to login a user. If a valid username and password is found in the database
      * the auth token will be updated to a new value and a 200 error code is returned. If
      * no user is found a 401 unauthorized error will be returned to the client.
+     *
      * @param creds the supplied username and password
-     * @param auth the user auth token
+     * @param auth  the user auth token
      * @return a response
      */
     @POST
@@ -266,9 +266,10 @@ public class ConcertResource {
     }
 
     /**
-     *  Attempts to create a booking request for a logged in user. If authentication fails a 401 unauthorized
-     *  error is returned to the client. If the booking request is invalid a 400 bad request is returned. If
-     *  all else succeeds a booking is made.
+     * Attempts to create a booking request for a logged in user. If authentication fails a 401 unauthorized
+     * error is returned to the client. If the booking request is invalid a 400 bad request is returned. If
+     * all else succeeds a booking is made.
+     *
      * @param bReq booking request object
      * @param auth the user auth token
      * @return
@@ -297,11 +298,11 @@ public class ConcertResource {
                         .setParameter("label", seatLabel)
                         .setParameter("date", bReq.getDate());
 
-                if (seat.getResultList().isEmpty()){
+                if (seat.getResultList().isEmpty()) {
                     return Response.status(400).build();
                 }
 
-                if (seat.getSingleResult().getBookingStatus()){
+                if (seat.getSingleResult().getBookingStatus()) {
                     return Response.status(403).build();
                 }
                 seat.getSingleResult().setBookingStatus(true);
@@ -311,10 +312,7 @@ public class ConcertResource {
             //TODO whack in try catch loop to return 401 unauth
             user = authenticate(em, auth);
 
-            concert = findConcert(em, bReq.getConcertId());
-            if (concert == null){
-                return Response.status(400).build();
-            }
+            concert = findConcert(em, bReq.getConcertId(), "POST");
 
             booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
             booking.setUser(user);
@@ -329,10 +327,10 @@ public class ConcertResource {
             int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
             ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
 
-            for(Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
+            for (Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
                 // Check relavent concert information
-                if(entry.getValue().getConcertId() == concert.getId() && concert.getDates().contains(entry.getValue().getDate())) {
-                    if(percentageFree < entry.getValue().getPercentageBooked()) {
+                if (entry.getValue().getConcertId() == concert.getId() && concert.getDates().contains(entry.getValue().getDate())) {
+                    if (percentageFree < entry.getValue().getPercentageBooked()) {
                         entry.getKey().resume(notif);
                     }
                 }
@@ -362,7 +360,7 @@ public class ConcertResource {
             BookingStatus bookingStatus = BookingStatus.valueOf(status);
             em.getTransaction().begin();
 
-            switch(bookingStatus) {
+            switch (bookingStatus) {
                 case Any:
                     seatQuery = em
                             .createQuery("select s from Seat s where s.date=:date", Seat.class)
@@ -388,7 +386,7 @@ public class ConcertResource {
             }
 
             em.getTransaction().commit();
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // Catches any illegal arguments supplied in @QueryParam status
             return Response.status(Response.Status.BAD_REQUEST).build();
 
@@ -445,7 +443,7 @@ public class ConcertResource {
             User user = authenticate(em, auth);
 
             List<Booking> bookings = user.getBookings();
-            for (Booking booking: bookings){
+            for (Booking booking : bookings) {
                 bookingDTOS.add(BookingMapper.toDto(booking));
             }
 
@@ -467,20 +465,22 @@ public class ConcertResource {
     public void subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) throws InterruptedException {
         LOGGER.info("Attempting to subscribe user to concert");
         Concert concert;
-        if(auth == null) {
+        if (auth == null) {
             sub.resume(Response.status(Response.Status.UNAUTHORIZED).build());
-        }else {
+        } else {
 
             try {
                 em.getTransaction().begin();
 
                 // Check ConcertInfoSubscriptionDTO values
-                concert = findConcert(em, subscriptionDTO.getConcertId());
-                if (concert == null || !concert.getDates().contains(subscriptionDTO.getDate())) {
+                concert = findConcert(em, subscriptionDTO.getConcertId(), "POST");
+
+                if (!concert.getDates().contains(subscriptionDTO.getDate())) {
                     sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
                 } else {
                     subs.put(sub, subscriptionDTO);
                 }
+
                 em.getTransaction().commit();
 
             } finally {
