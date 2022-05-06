@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
-import static proj.concert.service.util.ConcertResourceUtils.authenticate;
-import static proj.concert.service.util.ConcertResourceUtils.findConcert;
+import static proj.concert.service.util.ConcertResourceUtils.*;
 
 /**
  * This is a class that implements endpoints for a concert application
@@ -84,9 +83,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-
         return Response.ok(dtoConcert).build();
-
     }
 
     /**
@@ -101,7 +98,6 @@ public class ConcertResource {
     public Response retrieveAllConcerts(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concerts");
         ArrayList<ConcertDTO> dtoConcerts = new ArrayList<ConcertDTO>();
-
         try {
             em.getTransaction().begin();
             TypedQuery<Concert> query = em.createQuery("select c from Concert c", Concert.class);
@@ -134,7 +130,6 @@ public class ConcertResource {
     public Response retrieveAllConcertSummaries(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concert summaries");
         ArrayList<ConcertSummaryDTO> dtoConcertSummaries = new ArrayList<ConcertSummaryDTO>();
-
         try {
             em.getTransaction().begin();
             TypedQuery<Concert> query = em.createQuery("select c from Concert c", Concert.class);
@@ -144,15 +139,11 @@ public class ConcertResource {
                 ConcertSummary toAdd = new ConcertSummary(concert.getId(), concert.getTitle(), concert.getImageName());
                 dtoConcertSummaries.add(ConcertSummaryMapper.toDto(toAdd));
             }
-
             em.getTransaction().commit();
         } finally {
             em.close();
         }
-
-        return Response
-                .ok(dtoConcertSummaries)
-                .build();
+        return Response.ok(dtoConcertSummaries).build();
     }
 
     /**
@@ -169,16 +160,11 @@ public class ConcertResource {
     public Response retrievePerformer(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving performer with id: " + id);
         PerformerDTO dtoPerformer;
+        Performer performer;
         try {
             em.getTransaction().begin();
-
-            Performer performer = em.find(Performer.class, id);
-            if (performer == null) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-
+            performer = findPerformer(em, id, "GET");
             dtoPerformer = PerformerMapper.toDto(performer);
-
             em.getTransaction().commit();
         } finally {
             em.close();

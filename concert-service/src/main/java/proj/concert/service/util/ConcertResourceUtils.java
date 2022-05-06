@@ -1,6 +1,7 @@
 package proj.concert.service.util;
 
 import proj.concert.service.domain.Concert;
+import proj.concert.service.domain.Performer;
 import proj.concert.service.domain.User;
 
 import javax.persistence.EntityManager;
@@ -40,6 +41,19 @@ public class ConcertResourceUtils {
                     throw new WebApplicationException(Response.Status.BAD_REQUEST);
             }
         }
-        return em.find(Concert.class, id);
+        return concert;
+    }
+
+    public static Performer findPerformer(EntityManager em, Long id, String method){
+        Performer performer = em.find(Performer.class, id);
+        if (performer == null){
+            switch(method){
+                case "GET":
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                case "POST":
+                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+        }
+        return performer;
     }
 }
