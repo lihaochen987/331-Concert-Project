@@ -2,6 +2,7 @@ package proj.concert.service.services;
 
 import org.h2.security.auth.Authenticator;
 import proj.concert.common.dto.*;
+import proj.concert.common.types.BookingStatus;
 import proj.concert.service.common.Config;
 import proj.concert.service.domain.*;
 import proj.concert.service.jaxrs.LocalDateTimeParam;
@@ -24,13 +25,16 @@ import java.util.concurrent.Future;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
+
+
 @Path("/concert-service")
 public class ConcertResource {
-    //TODO implement this class.
 
     private EntityManager em = PersistenceManager.instance().createEntityManager();
 
     private Map<Long, Concert> concertDB;
+
+    private static final Map<AsyncResponse, ConcertInfoSubscriptionDTO> subs = new HashMap<>();
 
     @GET
     @Path("/concerts/{id}")
@@ -249,6 +253,22 @@ public class ConcertResource {
                     .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
                     .setParameter("date", booking.getDate())
                     .setParameter("status", false);
+
+            // Check seat amount left and push to specific subscriptions
+            int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
+            ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
+
+            for(Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
+                // Check relavent concert information
+                if(entry.getValue().getConcertId() == concert.getId() && concert.getDates().contains(entry.getValue().getDate())) {
+                    if(percentageFree < entry.getValue().getPercentageBooked()) {
+                        entry.getKey().resume(notif);
+                    }
+                }
+            }
+            LOGGER.info(subs.size());
+
+
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -267,25 +287,31 @@ public class ConcertResource {
 
         LocalDateTime date = dateParam.getLocalDateTime();
         ArrayList<SeatDTO> seats = new ArrayList<SeatDTO>();
-        TypedQuery<Seat> seatQuery;
-
-        // TODO Completes the tests for now, but doesn't utilise the BookingStatus Enum at all
-        boolean getStatus;
-        getStatus = status.equals("Booked");
+        TypedQuery<Seat> seatQuery = null;
 
         try {
+            BookingStatus bookingStatus = BookingStatus.valueOf(status);
             em.getTransaction().begin();
 
-            //TODO Can't be bothered mapping the BookingStatus Enum to Seats
-            if (status.equals("Any")){
-                seatQuery = em
-                        .createQuery("select s from Seat s where s.date=:date", Seat.class)
-                        .setParameter("date", date);
-            } else {
-                seatQuery = em
-                        .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                        .setParameter("date", date)
-                        .setParameter("status", getStatus);
+            switch(bookingStatus) {
+                case Any:
+                    seatQuery = em
+                            .createQuery("select s from Seat s where s.date=:date", Seat.class)
+                            .setParameter("date", date);
+                    break;
+
+                case Booked:
+                    seatQuery = em
+                            .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                            .setParameter("date", date)
+                            .setParameter("status", true);
+                    break;
+                case Unbooked:
+                    seatQuery = em
+                            .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                            .setParameter("date", date)
+                            .setParameter("status", false);
+                    break;
             }
 
             for (Seat seat : seatQuery.getResultList()) {
@@ -293,6 +319,10 @@ public class ConcertResource {
             }
 
             em.getTransaction().commit();
+        } catch(IllegalArgumentException e) {
+            // Catches any illegal arguments supplied in @QueryParam status
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
         } finally {
             em.close();
         }
@@ -397,23 +427,8 @@ public class ConcertResource {
                 if (concert == null || !concert.getDates().contains(subscriptionDTO.getDate())) {
                     sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
                 } else {
-                    TypedQuery<Seat> seatQuery = em
-                            .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                            .setParameter("date", subscriptionDTO.getDate())
-                            .setParameter("status", false);
-
-                    int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
-
-                    while (percentageFree > subscriptionDTO.getPercentageBooked()) {
-                        percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
-                        // Potentially add some thread.sleep
-                    }
-                    ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
-
-                    sub.resume(notif);
+                    subs.put(sub, subscriptionDTO);
                 }
-
-
                 em.getTransaction().commit();
 
             } finally {
