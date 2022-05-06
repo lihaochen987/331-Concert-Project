@@ -98,15 +98,13 @@ public class ConcertResource {
     public Response retrieveAllConcerts(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concerts");
         ArrayList<ConcertDTO> dtoConcerts = new ArrayList<ConcertDTO>();
+        List<Concert> concerts;
         try {
             em.getTransaction().begin();
-            TypedQuery<Concert> query = em.createQuery("select c from Concert c", Concert.class);
-            List<Concert> concerts = query.getResultList();
-
+            concerts = findAllConcerts(em);
             for (Concert concert : concerts) {
                 dtoConcerts.add(ConcertMapper.toDto(concert));
             }
-
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -126,11 +124,10 @@ public class ConcertResource {
     public Response retrieveAllConcertSummaries(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concert summaries");
         ArrayList<ConcertSummaryDTO> dtoConcertSummaries = new ArrayList<ConcertSummaryDTO>();
+        List<Concert> concerts;
         try {
             em.getTransaction().begin();
-            TypedQuery<Concert> query = em.createQuery("select c from Concert c", Concert.class);
-            List<Concert> concerts = query.getResultList();
-
+            concerts = findAllConcerts(em);
             for (Concert concert : concerts) {
                 ConcertSummary toAdd = new ConcertSummary(concert.getId(), concert.getTitle(), concert.getImageName());
                 dtoConcertSummaries.add(ConcertSummaryMapper.toDto(toAdd));
