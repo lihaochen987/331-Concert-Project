@@ -212,20 +212,7 @@ public class ConcertResource {
         LOGGER.info("Generated cookie: " + newCookie.getValue());
         try {
             em.getTransaction().begin();
-
-            User toFind = UserMapper.toDomainModel(creds);
-            TypedQuery<User> query = em
-                    .createQuery("select u from User u where u.username=:username and u.password=:password", User.class)
-                    .setParameter("username", toFind.getUsername())
-                    .setParameter("password", toFind.getPassword());
-
-            if (query.getResultList().isEmpty()) {
-                return Response.status(Response.Status.UNAUTHORIZED).build();
-            }
-
-            User user = query.getSingleResult();
-            user.setToken(newCookie.getValue());
-            em.merge(user);
+            findUserAndAssignToken(em, creds, newCookie);
             em.getTransaction().commit();
         } finally {
             em.close();
