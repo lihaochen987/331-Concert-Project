@@ -54,20 +54,12 @@ public class User {
         this.id = id;
     }
 
-    public String getToken() {
-        return token;
-    }
-
     public void setToken(String token) {
         this.token = token;
     }
 
     public List<Booking> getBookings() {
         return bookings;
-    }
-
-    public void setBookings(List<Booking> bookings) {
-        this.bookings = bookings;
     }
 
     @Override

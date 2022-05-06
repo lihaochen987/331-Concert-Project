@@ -4,7 +4,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import proj.concert.common.types.Genre;
 
-import javax.annotation.processing.Generated;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +35,6 @@ public class Performer implements Comparable<Performer> {
     public Performer() {
     }
 
-    public Performer(Long id, String name, String imageName, Genre genre, String blurb) {
-        this.id = id;
-        this.name = name;
-        this.imageName = imageName;
-        this.genre = genre;
-        this.blurb = blurb;
-    }
-
     public Long getId() {
         return id;
     }
@@ -64,24 +55,12 @@ public class Performer implements Comparable<Performer> {
         return imageName;
     }
 
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
-    }
-
     public Genre getGenre() {
         return genre;
     }
 
-    public void setGenre(Genre genre) {
-        this.genre = genre;
-    }
-
     public String getBlurb() {
         return blurb;
-    }
-
-    public void setBlurb(String blurb) {
-        this.blurb = blurb;
     }
 
     @Override

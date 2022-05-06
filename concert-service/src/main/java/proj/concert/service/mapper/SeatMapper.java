@@ -1,8 +1,6 @@
 package proj.concert.service.mapper;
 
-import proj.concert.common.dto.PerformerDTO;
 import proj.concert.common.dto.SeatDTO;
-import proj.concert.service.domain.Performer;
 import proj.concert.service.domain.Seat;
 
 public class SeatMapper {

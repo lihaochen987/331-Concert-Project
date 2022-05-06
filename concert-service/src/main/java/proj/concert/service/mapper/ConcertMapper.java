@@ -7,11 +7,7 @@ import proj.concert.service.domain.Performer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-
-import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 public class ConcertMapper {
 

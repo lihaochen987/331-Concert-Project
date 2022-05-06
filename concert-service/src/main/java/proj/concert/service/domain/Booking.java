@@ -2,7 +2,6 @@ package proj.concert.service.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import proj.concert.common.dto.SeatDTO;
 import proj.concert.common.jackson.LocalDateTimeDeserializer;
 import proj.concert.common.jackson.LocalDateTimeSerializer;
 
@@ -17,6 +16,7 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
     private long id;
 
     @Column(name = "CONCERTID", nullable = false)
@@ -48,10 +48,6 @@ public class Booking {
         return concertId;
     }
 
-    public void setConcertId(long concertId) {
-        this.concertId = concertId;
-    }
-
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime getDate() {
@@ -64,10 +60,6 @@ public class Booking {
 
     public List<Seat> getSeats() {
         return seats;
-    }
-
-    public void setSeats(List<Seat> seats) {
-        this.seats = seats;
     }
 
     public long getId() {

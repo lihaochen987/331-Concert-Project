@@ -1,10 +1,8 @@
 package proj.concert.service.mapper;
 
 import proj.concert.common.dto.BookingDTO;
-import proj.concert.common.dto.ConcertSummaryDTO;
 import proj.concert.common.dto.SeatDTO;
 import proj.concert.service.domain.Booking;
-import proj.concert.service.domain.ConcertSummary;
 import proj.concert.service.domain.Seat;
 
 import java.util.ArrayList;
