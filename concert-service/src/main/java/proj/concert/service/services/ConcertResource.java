@@ -153,11 +153,9 @@ public class ConcertResource {
     public Response retrievePerformer(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving performer with id: " + id);
         PerformerDTO dtoPerformer;
-        Performer performer;
         try {
             em.getTransaction().begin();
-            performer = findPerformer(em, id, "GET");
-            dtoPerformer = PerformerMapper.toDto(performer);
+            dtoPerformer = getDtoPerformer(em, id, "GET");
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -180,13 +178,7 @@ public class ConcertResource {
 
         try {
             em.getTransaction().begin();
-            TypedQuery<Performer> query = em.createQuery("select p from Performer p", Performer.class);
-            List<Performer> performers = query.getResultList();
-
-            for (Performer performer : performers) {
-                dtoPerformers.add(PerformerMapper.toDto(performer));
-            }
-
+            dtoPerformers = getAllDtoPerformers(em);
             em.getTransaction().commit();
         } finally {
             em.close();

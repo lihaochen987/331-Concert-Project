@@ -1,9 +1,11 @@
 package proj.concert.service.util;
 
+import proj.concert.common.dto.PerformerDTO;
 import proj.concert.common.dto.UserDTO;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.Performer;
 import proj.concert.service.domain.User;
+import proj.concert.service.mapper.PerformerMapper;
 import proj.concert.service.mapper.UserMapper;
 
 import javax.persistence.EntityManager;
@@ -14,6 +16,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
@@ -76,12 +79,24 @@ public class ConcertResourceUtils {
     }
 
     // Performer helper functions
-    public static Performer findPerformer(EntityManager em, Long id, String method) {
+    public static PerformerDTO getDtoPerformer(EntityManager em, Long id, String method) {
         Performer performer = em.find(Performer.class, id);
         if (performer == null) {
             entityExceptionDecisionManager(method);
         }
-        return performer;
+        return PerformerMapper.toDto(performer);
+    }
+
+    public static ArrayList<PerformerDTO> getAllDtoPerformers(EntityManager em){
+        ArrayList<PerformerDTO> dtoPerformers = new ArrayList<PerformerDTO>();
+        List<Performer> performers = em
+                .createQuery("select p from Performer p", Performer.class)
+                .getResultList();
+
+        for (Performer performer : performers) {
+            dtoPerformers.add(PerformerMapper.toDto(performer));
+        }
+        return dtoPerformers;
     }
 
     // Seat helper functions
