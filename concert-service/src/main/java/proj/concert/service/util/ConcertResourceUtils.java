@@ -14,6 +14,12 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 public class ConcertResourceUtils {
 
+    public static void checkAuthenticationNotNull(Cookie auth){
+        if (auth == null){
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        }
+    }
+
     // TODO Look at creating custom exception for this
     public static User authenticate(EntityManager em, Cookie cookie) throws Exception {
         LOGGER.info("Searching cookie " + cookie.getValue());
@@ -34,7 +40,7 @@ public class ConcertResourceUtils {
     public static Concert findConcert(EntityManager em, Long id, String method){
         Concert concert = em.find(Concert.class, id);
         if (concert == null){
-            exceptionDecisionManager(method);
+            entityExceptionDecisionManager(method);
         }
         return concert;
     }
@@ -42,12 +48,12 @@ public class ConcertResourceUtils {
     public static Performer findPerformer(EntityManager em, Long id, String method){
         Performer performer = em.find(Performer.class, id);
         if (performer == null){
-            exceptionDecisionManager(method);
+            entityExceptionDecisionManager(method);
         }
         return performer;
     }
 
-    public static void exceptionDecisionManager(String method){
+    public static void entityExceptionDecisionManager(String method){
         switch(method){
             case "GET":
                 throw new WebApplicationException(Response.Status.NOT_FOUND);

@@ -15,11 +15,6 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 public class ConcertMapper {
 
-    public static Concert toDomainModel(ConcertDTO dtoConcert) {
-        return new Concert(dtoConcert.getId(), dtoConcert.getTitle(), dtoConcert.getImageName(), dtoConcert.getBlurb());
-        //TODO Fix implementation
-    }
-
     public static ConcertDTO toDto(Concert concert) {
         List<Performer> performers = concert.getPerformers();
         List<PerformerDTO> performerDTOList = new ArrayList<PerformerDTO>();

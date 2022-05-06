@@ -111,11 +111,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-
-        return Response
-                .ok(dtoConcerts)
-                .build();
-
+        return Response.ok(dtoConcerts).build();
     }
 
     /**
@@ -169,10 +165,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-
-        return Response
-                .ok(dtoPerformer)
-                .build();
+        return Response.ok(dtoPerformer).build();
     }
 
     /**
@@ -201,11 +194,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-
-        return Response
-                .ok(dtoPerformers)
-                .build();
-
+        return Response.ok(dtoPerformers).build();
     }
 
     /**
@@ -244,11 +233,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-
-        return Response
-                .ok()
-                .cookie(newCookie)
-                .build();
+        return Response.ok().cookie(newCookie).build();
     }
 
     /**
@@ -271,13 +256,10 @@ public class ConcertResource {
         Booking booking;
         User user;
         Concert concert;
-
-        if (auth == null) {
-            return Response.status(401).build();
-        }
-
+        checkAuthenticationNotNull(auth);
         try {
             em.getTransaction().begin();
+            authenticate(em, auth);
             for (String seatLabel : bReq.getSeatLabels()) {
                 TypedQuery<Seat> seat = em
                         .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
@@ -326,10 +308,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-
-        return Response
-                .created(URI.create("/concert-service/bookings/" + booking.getId()))
-                .build();
+        return Response.created(URI.create("/concert-service/bookings/" + booking.getId())).build();
     }
 
     @GET
@@ -391,11 +370,7 @@ public class ConcertResource {
         LOGGER.info("Attempting to get booking by id");
         BookingDTO dtoBooking;
         User user;
-
-        if (auth == null) {
-            return Response.status(403).build();
-        }
-
+        checkAuthenticationNotNull(auth);
         try {
             em.getTransaction().begin();
             user = authenticate(em, auth);
@@ -457,7 +432,6 @@ public class ConcertResource {
 
             try {
                 em.getTransaction().begin();
-
                 // Check ConcertInfoSubscriptionDTO values
                 concert = findConcert(em, subscriptionDTO.getConcertId(), "POST");
 
