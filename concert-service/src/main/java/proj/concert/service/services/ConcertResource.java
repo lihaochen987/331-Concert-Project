@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
+import static proj.concert.service.util.ConcertResourceUtils.authenticate;
 
 /**
  * This is a class that implements endpoints for a concert application
@@ -317,7 +318,7 @@ public class ConcertResource {
             }
 
             //TODO whack in try catch loop to return 401 unauth
-            user = authenticate(auth);
+            user = authenticate(em, auth);
 
             concert = em.find(Concert.class, bReq.getConcertId());
             if (concert == null){
@@ -422,7 +423,7 @@ public class ConcertResource {
 
         try {
             em.getTransaction().begin();
-            user = authenticate(auth);
+            user = authenticate(em, auth);
             Booking booking = em.find(Booking.class, bookingId);
             dtoBooking = BookingMapper.toDto(booking);
 
@@ -442,22 +443,6 @@ public class ConcertResource {
     }
 
 
-    // TODO Look at creating custom exception for this
-    public User authenticate(Cookie cookie) throws Exception {
-        LOGGER.info("Searching cookie " + cookie.getValue());
-        String token = cookie.getValue();
-        User user;
-        TypedQuery<User> query = em
-                .createQuery("select u from User u where u.token=:token", User.class)
-                .setParameter("token", token);
-
-        if (query.getResultList().isEmpty()) {
-            throw new Exception();
-        }
-
-        user = query.getSingleResult();
-        return user;
-    }
 
     @GET
     @Path("/bookings")
@@ -467,7 +452,7 @@ public class ConcertResource {
         ArrayList<BookingDTO> bookingDTOS = new ArrayList<BookingDTO>();
         try {
             em.getTransaction().begin();
-            User user = authenticate(auth);
+            User user = authenticate(em, auth);
 
             List<Booking> bookings = user.getBookings();
             for (Booking booking: bookings){
@@ -526,7 +511,4 @@ public class ConcertResource {
         return newCookie;
     }
 
-    private Cookie passCookie(@CookieParam("auth") Cookie auth) {
-        return auth;
-    }
 }
