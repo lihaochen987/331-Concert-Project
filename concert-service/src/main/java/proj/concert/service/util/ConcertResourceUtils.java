@@ -21,7 +21,6 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 public class ConcertResourceUtils {
 
     // User helper functions
-
     public static void findUserAndAssignToken(EntityManager em, UserDTO dtoUser, NewCookie cookie) {
         User domainUser = UserMapper.toDomainModel(dtoUser);
         User user;
@@ -84,6 +83,9 @@ public class ConcertResourceUtils {
         }
         return performer;
     }
+
+    // Seat helper functions
+
 
     // Utility functions
     public static void entityExceptionDecisionManager(String method) {

@@ -243,7 +243,7 @@ public class ConcertResource {
         checkAuthenticationNotNull(auth);
         try {
             em.getTransaction().begin();
-            authenticate(em, auth);
+            user = authenticate(em, auth);
             for (String seatLabel : bReq.getSeatLabels()) {
                 TypedQuery<Seat> seat = em
                         .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
@@ -260,10 +260,6 @@ public class ConcertResource {
                 seat.getSingleResult().setBookingStatus(true);
                 seats.add(seat.getSingleResult());
             }
-
-            //TODO whack in try catch loop to return 401 unauth
-            user = authenticate(em, auth);
-
             concert = findConcert(em, bReq.getConcertId(), "POST");
 
             booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
@@ -362,11 +358,8 @@ public class ConcertResource {
             dtoBooking = BookingMapper.toDto(booking);
 
             if (booking.getUser().equals(user)) {
-                return Response
-                        .ok(dtoBooking)
-                        .build();
+                return Response.ok(dtoBooking).build();
             }
-
             em.getTransaction().commit();
         } catch (Exception e) {
             return Response.status(401).build();
