@@ -25,7 +25,39 @@ import java.util.concurrent.Future;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
-
+/**
+ * This is a class that implements endpoints for a concert application
+ * <p>
+ *     - GET    <base-uri>/concert-service/concerts/{id}
+ *     Retrieves concert from a given id
+ * <p>
+ *     - GET    <base-uri>/concert-service/concerts
+ *     Retrieves all concerts
+ * <p>
+ *     - GET    <base-uri>/concert-service/concerts/summaries
+ *     Retrieves concert summaries
+ * <p>
+ *     - GET    <base-uri>/concert-service/performers/{id}
+ *     Retrieves performer from given id
+ * <p>
+ *     - GET    <base-uri>/concert-service/performers
+ *     Retrieves all performers
+ * <p>
+ *     - POST   <base-uri>/login
+ *     Login to concert service
+ * <p>
+ *     - POST   <base-uri>/bookings
+ *     Makes a booking request
+ * <p>
+ *     - GET    <base-uri>/seats/{localdatetime}
+ *     Retrieve seats for a given date
+ * <p>
+ *     - GET    <base-uri>/bookings/{id}
+ *     Retrieves booking with given id
+ * <p>
+ *     - GET    <base-uri>/bookings
+ *     Retrieves a logged in users bookings
+ */
 
 @Path("/concert-service")
 public class ConcertResource {
@@ -36,6 +68,13 @@ public class ConcertResource {
 
     private static final Map<AsyncResponse, ConcertInfoSubscriptionDTO> subs = new HashMap<>();
 
+    /**
+     * Attempts to retrieve a concert with supplied concertId. If a valid concert is found a concert object
+     * will be passed to the client. If no valid concert is found a 404 error is returned to the client
+     * @param id the unique id for a specific concert
+     * @param auth the user auth token
+     * @return a JSON object representation of a given concert
+     */
     @GET
     @Path("/concerts/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -63,6 +102,11 @@ public class ConcertResource {
 
     }
 
+    /**
+     * Attempts to retrieve all concerts
+     * @param auth the user auth token
+     * @return a JSON object representation of all concerts
+     */
     @GET
     @Path("/concerts")
     @Produces(MediaType.APPLICATION_JSON)
@@ -90,6 +134,11 @@ public class ConcertResource {
 
     }
 
+    /**
+     * Attempts to retrieve all concert summaries
+     * @param auth the user auth token
+     * @return a JSON object representation of all concert summaries
+     */
     @GET
     @Path("/concerts/summaries")
     @Produces(MediaType.APPLICATION_JSON)
@@ -117,6 +166,13 @@ public class ConcertResource {
                 .build();
     }
 
+    /**
+     * Attempts to retrieve a performer with a given id. If a performer is found the performer object
+     * will be passed to the client. If the performer is not found a 404 error is returned.
+     * @param id the unique id of a specific concert
+     * @param auth the user auth token
+     * @return a JSON object representation of a given performer
+     */
     @GET
     @Path("/performers/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -143,6 +199,11 @@ public class ConcertResource {
                 .build();
     }
 
+    /**
+     * Attempts to retrieve all performers
+     * @param auth the user auth token
+     * @return a JSON representation of all performer objects
+     */
     @GET
     @Path("/performers")
     @Produces(MediaType.APPLICATION_JSON)
@@ -170,6 +231,14 @@ public class ConcertResource {
 
     }
 
+    /**
+     * Attempts to login a user. If a valid username and password is found in the database
+     * the auth token will be updated to a new value and a 200 error code is returned. If
+     * no user is found a 401 unauthorized error will be returned to the client.
+     * @param creds the supplied username and password
+     * @param auth the user auth token
+     * @return a response
+     */
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -187,7 +256,7 @@ public class ConcertResource {
                     .setParameter("password", toFind.getPassword());
 
             if (query.getResultList().isEmpty()) {
-                return Response.status(401).build();
+                return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
             User user = query.getSingleResult();
@@ -204,6 +273,15 @@ public class ConcertResource {
                 .build();
     }
 
+    /**
+     *  Attempts to create a booking request for a logged in user. If authentication fails a 401 unauthorized
+     *  error is returned to the client. If the booking request is invalid a 400 bad request is returned. If
+     *  all else succeeds a booking is made.
+     * @param bReq booking request object
+     * @param auth the user auth token
+     * @return
+     * @throws Exception
+     */
     @POST
     @Path("/bookings")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -238,6 +316,7 @@ public class ConcertResource {
                 seats.add(seat.getSingleResult());
             }
 
+            //TODO whack in try catch loop to return 401 unauth
             user = authenticate(auth);
 
             concert = em.find(Concert.class, bReq.getConcertId());
@@ -266,8 +345,6 @@ public class ConcertResource {
                     }
                 }
             }
-            LOGGER.info(subs.size());
-
 
             em.getTransaction().commit();
         } finally {
@@ -365,7 +442,7 @@ public class ConcertResource {
     }
 
 
-    // Look at creating custom exception for this
+    // TODO Look at creating custom exception for this
     public User authenticate(Cookie cookie) throws Exception {
         LOGGER.info("Searching cookie " + cookie.getValue());
         String token = cookie.getValue();
