@@ -1,10 +1,10 @@
 Tasks completed individually:
 
-Hao Chen Li
+Hao Chen Li (lihaochen987)
 
-Nathan Laing
+Nathan Laing (nukkienuk)
 
-Daena Govender
+Daena Govender (Daena-G)
 
 Tasks completed collaboratively:
 
