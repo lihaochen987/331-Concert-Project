@@ -1,9 +1,11 @@
 package proj.concert.service.util;
 
+import proj.concert.common.dto.BookingRequestDTO;
 import proj.concert.common.dto.PerformerDTO;
 import proj.concert.common.dto.UserDTO;
 import proj.concert.service.domain.Concert;
 import proj.concert.service.domain.Performer;
+import proj.concert.service.domain.Seat;
 import proj.concert.service.domain.User;
 import proj.concert.service.mapper.PerformerMapper;
 import proj.concert.service.mapper.UserMapper;
@@ -100,6 +102,26 @@ public class ConcertResourceUtils {
     }
 
     // Seat helper functions
+    public static ArrayList<Seat> findSeats (EntityManager em, BookingRequestDTO bReq){
+        ArrayList<Seat> seats = new ArrayList<Seat>();
+        for (String seatLabel : bReq.getSeatLabels()) {
+            TypedQuery<Seat> seat = em
+                    .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
+                    .setParameter("label", seatLabel)
+                    .setParameter("date", bReq.getDate());
+
+            if (seat.getResultList().isEmpty()) {
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+
+            if (seat.getSingleResult().getBookingStatus()) {
+                throw new WebApplicationException(Response.Status.FORBIDDEN);
+            }
+            seat.getSingleResult().setBookingStatus(true);
+            seats.add(seat.getSingleResult());
+        }
+        return seats;
+    }
 
 
     // Utility functions

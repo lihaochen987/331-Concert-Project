@@ -8,6 +8,7 @@ import proj.concert.service.mapper.*;
 import proj.concert.service.util.ConcertResourceUtils;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -228,7 +229,7 @@ public class ConcertResource {
     public Response makeBookingRequest(BookingRequestDTO bReq, @CookieParam("auth") Cookie auth) throws Exception {
         LOGGER.info("Attempt to create a booking request");
 
-        ArrayList<Seat> seats = new ArrayList<Seat>();
+        ArrayList<Seat> seats;
         Booking booking;
         User user;
         Concert concert;
@@ -236,22 +237,7 @@ public class ConcertResource {
         try {
             em.getTransaction().begin();
             user = authenticate(em, auth);
-            for (String seatLabel : bReq.getSeatLabels()) {
-                TypedQuery<Seat> seat = em
-                        .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
-                        .setParameter("label", seatLabel)
-                        .setParameter("date", bReq.getDate());
-
-                if (seat.getResultList().isEmpty()) {
-                    return Response.status(400).build();
-                }
-
-                if (seat.getSingleResult().getBookingStatus()) {
-                    return Response.status(403).build();
-                }
-                seat.getSingleResult().setBookingStatus(true);
-                seats.add(seat.getSingleResult());
-            }
+            seats = findSeats(em, bReq);
             concert = findConcert(em, bReq.getConcertId(), "POST");
 
             booking = new Booking(bReq.getConcertId(), bReq.getDate(), seats);
@@ -268,7 +254,7 @@ public class ConcertResource {
             ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
 
             for (Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
-                // Check relavent concert information
+                // Check relevant concert information
                 if (entry.getValue().getConcertId() == concert.getId() && concert.getDates().contains(entry.getValue().getDate())) {
                     if (percentageFree < entry.getValue().getPercentageBooked()) {
                         entry.getKey().resume(notif);
@@ -330,9 +316,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
-        return Response
-                .ok(seats)
-                .build();
+        return Response.ok(seats).build();
     }
 
     @GET
