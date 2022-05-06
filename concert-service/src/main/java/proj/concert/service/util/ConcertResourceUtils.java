@@ -34,12 +34,7 @@ public class ConcertResourceUtils {
     public static Concert findConcert(EntityManager em, Long id, String method){
         Concert concert = em.find(Concert.class, id);
         if (concert == null){
-            switch(method){
-                case "GET":
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                case "POST":
-                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
-            }
+            exceptionDecisionManager(method);
         }
         return concert;
     }
@@ -47,13 +42,17 @@ public class ConcertResourceUtils {
     public static Performer findPerformer(EntityManager em, Long id, String method){
         Performer performer = em.find(Performer.class, id);
         if (performer == null){
-            switch(method){
-                case "GET":
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                case "POST":
-                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
-            }
+            exceptionDecisionManager(method);
         }
         return performer;
+    }
+
+    public static void exceptionDecisionManager(String method){
+        switch(method){
+            case "GET":
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            case "POST":
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
     }
 }
