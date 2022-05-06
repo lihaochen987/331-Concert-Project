@@ -129,8 +129,8 @@ public class ConcertResource {
             em.getTransaction().begin();
             concerts = findAllConcerts(em);
             for (Concert concert : concerts) {
-                ConcertSummary toAdd = new ConcertSummary(concert.getId(), concert.getTitle(), concert.getImageName());
-                dtoConcertSummaries.add(ConcertSummaryMapper.toDto(toAdd));
+                ConcertSummaryDTO toAdd = new ConcertSummaryDTO(concert.getId(), concert.getTitle(), concert.getImageName());
+                dtoConcertSummaries.add(toAdd);
             }
             em.getTransaction().commit();
         } finally {
