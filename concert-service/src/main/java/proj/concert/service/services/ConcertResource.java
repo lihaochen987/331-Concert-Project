@@ -1,16 +1,12 @@
 package proj.concert.service.services;
 
-import org.h2.security.auth.Authenticator;
 import proj.concert.common.dto.*;
 import proj.concert.common.types.BookingStatus;
-import proj.concert.service.common.Config;
 import proj.concert.service.domain.*;
 import proj.concert.service.jaxrs.LocalDateTimeParam;
 import proj.concert.service.mapper.*;
 
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -19,12 +15,10 @@ import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 import static proj.concert.service.util.ConcertResourceUtils.authenticate;
+import static proj.concert.service.util.ConcertResourceUtils.findConcert;
 
 /**
  * This is a class that implements endpoints for a concert application
@@ -64,9 +58,6 @@ import static proj.concert.service.util.ConcertResourceUtils.authenticate;
 public class ConcertResource {
 
     private EntityManager em = PersistenceManager.instance().createEntityManager();
-
-    private Map<Long, Concert> concertDB;
-
     private static final Map<AsyncResponse, ConcertInfoSubscriptionDTO> subs = new HashMap<>();
 
     /**
@@ -82,16 +73,16 @@ public class ConcertResource {
     public Response retrieveConcert(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving concert with id: " + id);
         ConcertDTO dtoConcert;
+        Concert concert;
         try {
             em.getTransaction().begin();
+            concert = findConcert(em, id);
 
-            Concert concert = em.find(Concert.class, id);
             if (concert == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
 
             dtoConcert = ConcertMapper.toDto(concert);
-
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -320,7 +311,7 @@ public class ConcertResource {
             //TODO whack in try catch loop to return 401 unauth
             user = authenticate(em, auth);
 
-            concert = em.find(Concert.class, bReq.getConcertId());
+            concert = findConcert(em, bReq.getConcertId());
             if (concert == null){
                 return Response.status(400).build();
             }
@@ -443,7 +434,6 @@ public class ConcertResource {
     }
 
 
-
     @GET
     @Path("/bookings")
     @Produces(MediaType.APPLICATION_JSON)
@@ -476,6 +466,7 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public void subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) throws InterruptedException {
         LOGGER.info("Attempting to subscribe user to concert");
+        Concert concert;
         if(auth == null) {
             sub.resume(Response.status(Response.Status.UNAUTHORIZED).build());
         }else {
@@ -484,8 +475,7 @@ public class ConcertResource {
                 em.getTransaction().begin();
 
                 // Check ConcertInfoSubscriptionDTO values
-                Concert concert = em.find(Concert.class, subscriptionDTO.getConcertId());
-
+                concert = findConcert(em, subscriptionDTO.getConcertId());
                 if (concert == null || !concert.getDates().contains(subscriptionDTO.getDate())) {
                     sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
                 } else {
