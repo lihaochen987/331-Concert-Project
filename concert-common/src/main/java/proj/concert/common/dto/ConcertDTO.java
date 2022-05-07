@@ -27,7 +27,7 @@ public class ConcertDTO {
     private Long id;
     private String title;
     private String imageName;
-    private String blrb;
+    private String blurb;
 
     @JsonSerialize(contentUsing = LocalDateTimeSerializer.class)
     @JsonDeserialize(contentUsing = LocalDateTimeDeserializer.class)
@@ -37,11 +37,11 @@ public class ConcertDTO {
     public ConcertDTO() {
     }
 
-    public ConcertDTO(Long id, String title, String imageName, String blrb) {
+    public ConcertDTO(Long id, String title, String imageName, String blurb) {
         this.id = id;
         this.title = title;
         this.imageName = imageName;
-        this.blrb = blrb;
+        this.blurb = blurb;
     }
 
     public ConcertDTO(String title, String imageName) {
@@ -73,12 +73,12 @@ public class ConcertDTO {
         this.imageName = imageName;
     }
 
-    public String getblrb() {
-        return blrb;
+    public String getblurb() {
+        return blurb;
     }
 
-    public void setblrb(String blrb) {
-        this.blrb = blrb;
+    public void setblurb(String blurb) {
+        this.blurb = blurb;
     }
 
     public List<LocalDateTime> getDates() {

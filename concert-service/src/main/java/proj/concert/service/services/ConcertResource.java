@@ -244,20 +244,19 @@ public class ConcertResource {
             booking.setUser(user);
             em.persist(booking);
 
-            TypedQuery<Seat> seatQuery = em
-                    .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                    .setParameter("date", booking.getDate())
-                    .setParameter("status", false);
+            double availableSeats = getAvailableSeats(em, booking);
+            double totalSeats = getTotalSeats(em, booking);
 
             // Check seat amount left and push to specific subscriptions
-            int percentageFree = (int) ((((double) seatQuery.getResultList().size()) / 120.0) * 100);
-            ConcertInfoNotificationDTO notif = new ConcertInfoNotificationDTO(seatQuery.getResultList().size());
+            int percentageOfSeatsFree = (int) ((availableSeats / totalSeats) * 100);
+
+            ConcertInfoNotificationDTO concertNotificationDTO = new ConcertInfoNotificationDTO((int) availableSeats);
 
             for (Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
                 // Check relevant concert information
                 if (entry.getValue().getConcertId() == concert.getId() && concert.getDates().contains(entry.getValue().getDate())) {
-                    if (percentageFree < entry.getValue().getPercentageBooked()) {
-                        entry.getKey().resume(notif);
+                    if (percentageOfSeatsFree < entry.getValue().getPercentageBooked()) {
+                        entry.getKey().resume(concertNotificationDTO);
                     }
                 }
             }
@@ -277,37 +276,15 @@ public class ConcertResource {
 
         LocalDateTime date = dateParam.getLocalDateTime();
         ArrayList<SeatDTO> seats = new ArrayList<SeatDTO>();
-        TypedQuery<Seat> seatQuery = null;
+        TypedQuery<Seat> seatQuery;
 
         try {
             BookingStatus bookingStatus = BookingStatus.valueOf(status);
             em.getTransaction().begin();
-
-            switch (bookingStatus) {
-                case Any:
-                    seatQuery = em
-                            .createQuery("select s from Seat s where s.date=:date", Seat.class)
-                            .setParameter("date", date);
-                    break;
-
-                case Booked:
-                    seatQuery = em
-                            .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                            .setParameter("date", date)
-                            .setParameter("status", true);
-                    break;
-                case Unbooked:
-                    seatQuery = em
-                            .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
-                            .setParameter("date", date)
-                            .setParameter("status", false);
-                    break;
-            }
-
+            seatQuery = seatStatusDecisionManager(em, bookingStatus, date);
             for (Seat seat : seatQuery.getResultList()) {
                 seats.add(SeatMapper.toDto(seat));
             }
-
             em.getTransaction().commit();
         } catch (IllegalArgumentException e) {
             // Catches any illegal arguments supplied in @QueryParam status
@@ -338,11 +315,11 @@ public class ConcertResource {
             }
             em.getTransaction().commit();
         } catch (Exception e) {
-            return Response.status(401).build();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         } finally {
             em.close();
         }
-        return Response.status(403).build();
+        return Response.status(Response.Status.FORBIDDEN).build();
     }
 
 
@@ -401,17 +378,6 @@ public class ConcertResource {
             }
         }
 
-    }
-
-    private NewCookie makeCookie(String username, @CookieParam("auth") Cookie auth) {
-        NewCookie newCookie = null;
-
-        if (auth == null) {
-            newCookie = new NewCookie(username, UUID.randomUUID().toString());
-            LOGGER.info("Generated cookie: " + newCookie.getValue());
-        }
-
-        return newCookie;
     }
 
 }

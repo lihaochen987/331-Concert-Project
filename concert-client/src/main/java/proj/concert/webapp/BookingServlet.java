@@ -35,7 +35,7 @@ public class BookingServlet extends HttpServlet {
         Cookie authCookie = AuthUtil.getAuthCookie(req);
         if (authCookie == null) {
             LOGGER.info("doGet(): Not logged in - redirecting to /Concerts");
-            resp.sendRedirect("./Concerts"); // TODO Some ? parameter so that we display a message on page load?
+            resp.sendRedirect("./Concerts");
             return;
         }
 
@@ -53,7 +53,7 @@ public class BookingServlet extends HttpServlet {
             // If the date is invalid for that concert, get outta here.
             if (!concert.getDates().contains(date)) {
                 LOGGER.warn("doGet(): Date invalid for concert - redirecting to /Concerts");
-                resp.sendRedirect("./Concerts"); // TODO Some ? parameter so that we display a message on page load?
+                resp.sendRedirect("./Concerts");
                 return;
             }
 

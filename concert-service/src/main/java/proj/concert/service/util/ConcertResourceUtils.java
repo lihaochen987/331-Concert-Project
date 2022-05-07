@@ -3,10 +3,8 @@ package proj.concert.service.util;
 import proj.concert.common.dto.BookingRequestDTO;
 import proj.concert.common.dto.PerformerDTO;
 import proj.concert.common.dto.UserDTO;
-import proj.concert.service.domain.Concert;
-import proj.concert.service.domain.Performer;
-import proj.concert.service.domain.Seat;
-import proj.concert.service.domain.User;
+import proj.concert.common.types.BookingStatus;
+import proj.concert.service.domain.*;
 import proj.concert.service.mapper.PerformerMapper;
 import proj.concert.service.mapper.UserMapper;
 
@@ -19,6 +17,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +48,6 @@ public class ConcertResourceUtils {
         }
     }
 
-    // TODO Look at creating custom exception for this
     public static User authenticate(EntityManager em, Cookie cookie) throws Exception {
         LOGGER.info("Searching cookie " + cookie.getValue());
         String token = cookie.getValue();
@@ -90,7 +88,7 @@ public class ConcertResourceUtils {
         return PerformerMapper.toDto(performer);
     }
 
-    public static ArrayList<PerformerDTO> getAllDtoPerformers(EntityManager em){
+    public static ArrayList<PerformerDTO> getAllDtoPerformers(EntityManager em) {
         ArrayList<PerformerDTO> dtoPerformers = new ArrayList<PerformerDTO>();
         List<Performer> performers = em
                 .createQuery("select p from Performer p", Performer.class)
@@ -103,7 +101,7 @@ public class ConcertResourceUtils {
     }
 
     // Seat helper functions
-    public static ArrayList<Seat> findSeats (EntityManager em, BookingRequestDTO bReq){
+    public static ArrayList<Seat> findSeats(EntityManager em, BookingRequestDTO bReq) {
         ArrayList<Seat> seats = new ArrayList<Seat>();
         for (String seatLabel : bReq.getSeatLabels()) {
             TypedQuery<Seat> seat = em
@@ -126,6 +124,22 @@ public class ConcertResourceUtils {
         return seats;
     }
 
+    public static double getAvailableSeats(EntityManager em, Booking booking) {
+        List<Seat> availableSeatsQuery = em
+                .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                .setParameter("date", booking.getDate())
+                .setParameter("status", false)
+                .getResultList();
+        return (double) availableSeatsQuery.size();
+    }
+
+    public static double getTotalSeats(EntityManager em, Booking booking) {
+        List<Seat> totalSeatsQuery = em
+                .createQuery("select s from Seat s where s.date=:date", Seat.class)
+                .setParameter("date", booking.getDate())
+                .getResultList();
+        return (double) totalSeatsQuery.size();
+    }
 
     // Utility functions
     public static void entityExceptionDecisionManager(String method) {
@@ -134,6 +148,25 @@ public class ConcertResourceUtils {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             case "POST":
                 throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+    }
+
+    public static TypedQuery<Seat> seatStatusDecisionManager(EntityManager em, BookingStatus bookingStatus, LocalDateTime date) {
+        switch (bookingStatus) {
+            case Booked:
+                return em
+                        .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                        .setParameter("date", date)
+                        .setParameter("status", true);
+            case Unbooked:
+                return em
+                        .createQuery("select s from Seat s where s.date=:date and s.isBooked=:status", Seat.class)
+                        .setParameter("date", date)
+                        .setParameter("status", false);
+            default:
+                return em
+                        .createQuery("select s from Seat s where s.date=:date", Seat.class)
+                        .setParameter("date", date);
         }
     }
 }

@@ -99,8 +99,6 @@ public class Concert implements Comparable<Concert> {
         buffer.append(imageName);
         buffer.append(", blurb: ");
         buffer.append(blurb);
-        //TODO Add dates and performers for testing purposes
-
         return buffer.toString();
     }
 
