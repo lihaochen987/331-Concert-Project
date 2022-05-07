@@ -130,7 +130,7 @@ public class ConcertResourceUtils {
                 .setParameter("date", booking.getDate())
                 .setParameter("status", false)
                 .getResultList();
-        return (double) availableSeatsQuery.size();
+        return availableSeatsQuery.size();
     }
 
     public static double getTotalSeats(EntityManager em, Booking booking) {
@@ -138,7 +138,7 @@ public class ConcertResourceUtils {
                 .createQuery("select s from Seat s where s.date=:date", Seat.class)
                 .setParameter("date", booking.getDate())
                 .getResultList();
-        return (double) totalSeatsQuery.size();
+        return totalSeatsQuery.size();
     }
 
     // Utility functions

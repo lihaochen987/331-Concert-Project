@@ -74,8 +74,10 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response retrieveConcert(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving concert with id: " + id);
+
         ConcertDTO dtoConcert;
         Concert concert;
+
         try {
             em.getTransaction().begin();
             concert = findConcert(em, id, "GET");
@@ -84,6 +86,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok(dtoConcert).build();
     }
 
@@ -98,8 +101,10 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response retrieveAllConcerts(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concerts");
+
         ArrayList<ConcertDTO> dtoConcerts = new ArrayList<ConcertDTO>();
         List<Concert> concerts;
+
         try {
             em.getTransaction().begin();
             concerts = findAllConcerts(em);
@@ -110,6 +115,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok(dtoConcerts).build();
     }
 
@@ -124,8 +130,10 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response retrieveAllConcertSummaries(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all concert summaries");
+
         ArrayList<ConcertSummaryDTO> dtoConcertSummaries = new ArrayList<ConcertSummaryDTO>();
         List<Concert> concerts;
+
         try {
             em.getTransaction().begin();
             concerts = findAllConcerts(em);
@@ -137,6 +145,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok(dtoConcertSummaries).build();
     }
 
@@ -153,7 +162,9 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response retrievePerformer(@PathParam("id") long id, @CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving performer with id: " + id);
+
         PerformerDTO dtoPerformer;
+
         try {
             em.getTransaction().begin();
             dtoPerformer = getDtoPerformer(em, id, "GET");
@@ -161,6 +172,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok(dtoPerformer).build();
     }
 
@@ -175,6 +187,7 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response retrieveAllPerformers(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Retrieving all performers");
+
         ArrayList<PerformerDTO> dtoPerformers = new ArrayList<PerformerDTO>();
 
         try {
@@ -184,6 +197,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok(dtoPerformers).build();
     }
 
@@ -203,6 +217,7 @@ public class ConcertResource {
         LOGGER.info("Attempting to login");
         NewCookie newCookie = new NewCookie("auth", UUID.randomUUID().toString());
         LOGGER.info("Generated cookie: " + newCookie.getValue());
+
         try {
             em.getTransaction().begin();
             findUserAndAssignToken(em, creds, newCookie);
@@ -210,6 +225,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok().cookie(newCookie).build();
     }
 
@@ -234,6 +250,7 @@ public class ConcertResource {
         User user;
         Concert concert;
         checkAuthenticationNotNull(auth);
+
         try {
             em.getTransaction().begin();
             user = authenticate(em, auth);
@@ -254,8 +271,9 @@ public class ConcertResource {
 
             for (Map.Entry<AsyncResponse, ConcertInfoSubscriptionDTO> entry : subs.entrySet()) {
                 // Check relevant concert information
-                if (entry.getValue().getConcertId() == concert.getId() && concert.getDates().contains(entry.getValue().getDate())) {
-                    if (percentageOfSeatsFree < entry.getValue().getPercentageBooked()) {
+                ConcertInfoSubscriptionDTO subscription = entry.getValue();
+                if (subscription.getConcertId() == concert.getId() && concert.getDates().contains(subscription.getDate())) {
+                    if (percentageOfSeatsFree < subscription.getPercentageBooked()) {
                         entry.getKey().resume(concertNotificationDTO);
                     }
                 }
@@ -265,6 +283,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.created(URI.create("/concert-service/bookings/" + booking.getId())).build();
     }
 
@@ -293,6 +312,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.ok(seats).build();
     }
 
@@ -301,9 +321,11 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBookingById(@CookieParam("auth") Cookie auth, @PathParam("id") long bookingId) {
         LOGGER.info("Attempting to get booking by id");
+
         BookingDTO dtoBooking;
         User user;
         checkAuthenticationNotNull(auth);
+
         try {
             em.getTransaction().begin();
             user = authenticate(em, auth);
@@ -319,6 +341,7 @@ public class ConcertResource {
         } finally {
             em.close();
         }
+
         return Response.status(Response.Status.FORBIDDEN).build();
     }
 
@@ -328,7 +351,9 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserBookings(@CookieParam("auth") Cookie auth) {
         LOGGER.info("Attempting to get user bookings");
+
         ArrayList<BookingDTO> bookingDTOS = new ArrayList<BookingDTO>();
+
         try {
             em.getTransaction().begin();
             User user = authenticate(em, auth);
@@ -337,16 +362,14 @@ public class ConcertResource {
             for (Booking booking : bookings) {
                 bookingDTOS.add(BookingMapper.toDto(booking));
             }
-
             em.getTransaction().commit();
         } catch (Exception e) {
-            return Response.status(401).build();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         } finally {
             em.close();
         }
-        return Response
-                .ok(bookingDTOS)
-                .build();
+
+        return Response.ok(bookingDTOS).build();
     }
 
     @POST
@@ -355,29 +378,22 @@ public class ConcertResource {
     @Produces(MediaType.APPLICATION_JSON)
     public void subscribeToConcert(@Suspended AsyncResponse sub, @CookieParam("auth") Cookie auth, ConcertInfoSubscriptionDTO subscriptionDTO) throws InterruptedException {
         LOGGER.info("Attempting to subscribe user to concert");
+
         Concert concert;
-        if (auth == null) {
-            sub.resume(Response.status(Response.Status.UNAUTHORIZED).build());
-        } else {
+        checkAuthenticationNotNull(auth);
 
-            try {
-                em.getTransaction().begin();
-                // Check ConcertInfoSubscriptionDTO values
-                concert = findConcert(em, subscriptionDTO.getConcertId(), "POST");
-
-                if (!concert.getDates().contains(subscriptionDTO.getDate())) {
-                    sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
-                } else {
-                    subs.put(sub, subscriptionDTO);
-                }
-
-                em.getTransaction().commit();
-
-            } finally {
-                em.close();
+        try {
+            em.getTransaction().begin();
+            // Check ConcertInfoSubscriptionDTO values
+            concert = findConcert(em, subscriptionDTO.getConcertId(), "POST");
+            if (!concert.getDates().contains(subscriptionDTO.getDate())) {
+                sub.resume(Response.status(Response.Status.BAD_REQUEST).build());
+            } else {
+                subs.put(sub, subscriptionDTO);
             }
+            em.getTransaction().commit();
+        } finally {
+            em.close();
         }
-
     }
-
 }
