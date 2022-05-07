@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Represents a completed booking.
- * id          the id of the booking entity
+ * id          the unique identifier for the booking
  * concertId   the id of the concert which was booked
  * date        the date on which that concert was booked
  * seats       the seats which were booked for that concert on that date

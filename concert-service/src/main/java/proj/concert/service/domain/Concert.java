@@ -8,6 +8,15 @@ import javax.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+/**
+ * A Concert describes a concert in terms of
+ * id           the unique identifier for a concert.
+ * title        the concert's title.
+ * dates        the concert's scheduled dates and times (represented as a Set of LocalDateTime instances).
+ * imageName    an image name for the concert.
+ * performers   the performers in the concert
+ * blurb        the concert's description
+ */
 @Entity(name = "Concert")
 @Table(name = "CONCERTS")
 public class Concert implements Comparable<Concert> {
@@ -19,16 +28,13 @@ public class Concert implements Comparable<Concert> {
     @Column(name = "TITLE")
     private String title;
 
-    @Column(name = "IMAGE_NAME")
-    private String imageName;
-
-    @Column(name = "BLURB", length = 1020)
-    private String blurb;
-
     @ElementCollection
     @CollectionTable(name = "CONCERT_DATES")
     @Column(name = "DATE")
     private Set<LocalDateTime> dates = new HashSet<>();
+
+    @Column(name = "IMAGE_NAME")
+    private String imageName;
 
     @ManyToMany
     @JoinTable(
@@ -36,6 +42,9 @@ public class Concert implements Comparable<Concert> {
             joinColumns = @JoinColumn(name = "CONCERT_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID", referencedColumnName = "ID"))
     private List<Performer> performers = new ArrayList<>();
+
+    @Column(name = "BLURB", length = 1020)
+    private String blurb;
 
     public Concert() {
     }
