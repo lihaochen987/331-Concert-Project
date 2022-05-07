@@ -5,8 +5,6 @@ import proj.concert.common.dto.PerformerDTO;
 import proj.concert.common.dto.UserDTO;
 import proj.concert.common.types.BookingStatus;
 import proj.concert.service.domain.*;
-import proj.concert.service.mapper.PerformerMapper;
-import proj.concert.service.mapper.UserMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -27,7 +25,7 @@ public class ConcertResourceUtils {
 
     // User helper functions
     public static void findUserAndAssignToken(EntityManager em, UserDTO dtoUser, NewCookie cookie) {
-        User domainUser = UserMapper.toDomainModel(dtoUser);
+        User domainUser = new User(dtoUser.getUsername(), dtoUser.getPassword());
         User user;
         try {
             user = em
@@ -85,7 +83,7 @@ public class ConcertResourceUtils {
         if (performer == null) {
             entityExceptionDecisionManager(method);
         }
-        return PerformerMapper.toDto(performer);
+        return new PerformerDTO(performer.getId(), performer.getName(), performer.getImageName(), performer.getGenre(), performer.getBlurb());
     }
 
     public static ArrayList<PerformerDTO> getAllDtoPerformers(EntityManager em) {
@@ -95,7 +93,7 @@ public class ConcertResourceUtils {
                 .getResultList();
 
         for (Performer performer : performers) {
-            dtoPerformers.add(PerformerMapper.toDto(performer));
+            dtoPerformers.add(new PerformerDTO(performer.getId(), performer.getName(), performer.getImageName(), performer.getGenre(), performer.getBlurb()));
         }
         return dtoPerformers;
     }

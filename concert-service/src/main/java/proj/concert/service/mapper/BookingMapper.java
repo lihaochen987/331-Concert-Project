@@ -17,7 +17,7 @@ public class BookingMapper {
         }
 
         for (Seat seat: booking.getSeats()){
-            seats.add(SeatMapper.toDto(seat));
+            seats.add(new SeatDTO(seat.getLabel(), seat.getPrice()));
         }
         return new BookingDTO(booking.getConcertId(), booking.getDate(), seats);
     }

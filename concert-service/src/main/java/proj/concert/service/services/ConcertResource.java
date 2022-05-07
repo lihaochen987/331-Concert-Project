@@ -302,7 +302,7 @@ public class ConcertResource {
             em.getTransaction().begin();
             seatQuery = seatStatusDecisionManager(em, bookingStatus, date);
             for (Seat seat : seatQuery.getResultList()) {
-                seats.add(SeatMapper.toDto(seat));
+                seats.add(new SeatDTO(seat.getLabel(), seat.getPrice()));
             }
             em.getTransaction().commit();
         } catch (IllegalArgumentException e) {
