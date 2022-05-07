@@ -10,6 +10,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a completed booking.
+ * id          the id of the booking entity
+ * concertId   the id of the concert which was booked
+ * date        the date on which that concert was booked
+ * seats       the seats which were booked for that concert on that date
+ * user        the user associated with the booking
+ */
 @Entity(name = "BOOKING")
 @Table(name = "BOOKINGS")
 public class Booking {
