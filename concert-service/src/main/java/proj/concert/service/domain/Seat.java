@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @Table(name = "SEATS")
 public class Seat{
 
+	@Version
+	private long version;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", nullable = false)

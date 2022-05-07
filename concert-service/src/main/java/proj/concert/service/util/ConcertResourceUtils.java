@@ -11,6 +11,7 @@ import proj.concert.service.mapper.PerformerMapper;
 import proj.concert.service.mapper.UserMapper;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.WebApplicationException;
@@ -107,6 +108,7 @@ public class ConcertResourceUtils {
         for (String seatLabel : bReq.getSeatLabels()) {
             TypedQuery<Seat> seat = em
                     .createQuery("select s from Seat s where s.label=:label and s.date=:date", Seat.class)
+                    .setLockMode(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
                     .setParameter("label", seatLabel)
                     .setParameter("date", bReq.getDate());
 
@@ -117,6 +119,7 @@ public class ConcertResourceUtils {
             if (seat.getSingleResult().getBookingStatus()) {
                 throw new WebApplicationException(Response.Status.FORBIDDEN);
             }
+
             seat.getSingleResult().setBookingStatus(true);
             seats.add(seat.getSingleResult());
         }
