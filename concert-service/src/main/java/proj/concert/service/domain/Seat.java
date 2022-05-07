@@ -11,6 +11,14 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * A Seat describes a seat in terms of:
+ * id       the unique identifier for the seat
+ * label    the seat label
+ * price    the price
+ * isBooked the booking status of the seat
+ * date		the date of the respective seat
+ */
 @Entity(name = "Seat")
 @Table(name = "SEATS")
 public class Seat{

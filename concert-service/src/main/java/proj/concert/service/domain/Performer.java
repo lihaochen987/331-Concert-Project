@@ -8,6 +8,15 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A Performer describes a performer in terms of:
+ * id         the unique identifier for a performer
+ * name       the performer's name
+ * imageName  the name of an image file for the performer
+ * genre      the performer's genre
+ * blurb      the performer's description
+ * concerts   the concert the performer is in
+ */
 @Entity (name = "Performer")
 @Table(name = "PERFORMERS")
 public class Performer implements Comparable<Performer> {

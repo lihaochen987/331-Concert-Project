@@ -6,7 +6,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * A User describes a user in terms of:
+ * username  the user's unique username
+ * password  the user's password
+ * token     the user's authentication token
+ * bookings  the bookings associated with the user
+ */
 @Entity(name = "User")
 @Table(name = "USERS")
 public class User {

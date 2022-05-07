@@ -10,10 +10,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * A Concert describes a concert in terms of
- * id           the unique identifier for a concert.
- * title        the concert's title.
- * dates        the concert's scheduled dates and times (represented as a Set of LocalDateTime instances).
- * imageName    an image name for the concert.
+ * id           the unique identifier for a concert
+ * title        the concert's title
+ * dates        the concert's scheduled dates and times (represented as a Set of LocalDateTime instances)
+ * imageName    an image name for the concert
  * performers   the performers in the concert
  * blurb        the concert's description
  */
