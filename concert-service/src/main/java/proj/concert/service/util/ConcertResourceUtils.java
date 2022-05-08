@@ -36,6 +36,7 @@ public class ConcertResourceUtils {
                     .createQuery("select u from User u where u.username=:username and u.password=:password", User.class)
                     .setParameter("username", domainUser.getUsername())
                     .setParameter("password", domainUser.getPassword())
+                    .setLockMode(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
                     .getSingleResult();
             user.setToken(cookie.getValue());
             em.merge(user);

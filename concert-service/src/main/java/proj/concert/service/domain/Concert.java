@@ -7,6 +7,7 @@ import javax.persistence.*;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Fetch;
 
 /**
  * A Concert describes a concert in terms of
@@ -28,7 +29,7 @@ public class Concert implements Comparable<Concert> {
     @Column(name = "TITLE")
     private String title;
 
-    @ElementCollection
+    @ElementCollection (fetch = FetchType.LAZY)
     @CollectionTable(name = "CONCERT_DATES")
     @Column(name = "DATE")
     private Set<LocalDateTime> dates = new HashSet<>();
@@ -36,7 +37,7 @@ public class Concert implements Comparable<Concert> {
     @Column(name = "IMAGE_NAME")
     private String imageName;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "CONCERT_PERFORMER",
             joinColumns = @JoinColumn(name = "CONCERT_ID", referencedColumnName = "ID"),

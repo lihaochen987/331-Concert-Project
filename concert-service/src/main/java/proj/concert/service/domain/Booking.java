@@ -35,11 +35,11 @@ public class Booking {
     @Column(name = "DATE")
     private LocalDateTime date;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "SEATS")
     private List<Seat> seats = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_ID")
     private User user;
 

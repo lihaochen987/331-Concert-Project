@@ -38,7 +38,7 @@ public class Performer implements Comparable<Performer> {
     @Column(name = "BLURB", length = 1020)
     private String blurb;
 
-    @ManyToMany(mappedBy = "performers")
+    @ManyToMany(mappedBy = "performers", fetch = FetchType.LAZY)
     private List<Concert> concerts = new ArrayList<>();
 
     public Performer() {

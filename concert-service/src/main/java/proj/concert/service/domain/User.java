@@ -16,6 +16,7 @@ import java.util.List;
 @Entity(name = "User")
 @Table(name = "USERS")
 public class User {
+
     @Version
     private long version;
 
