@@ -1,5 +1,10 @@
 package proj.concert.common.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import proj.concert.common.jackson.LocalDateTimeDeserializer;
+import proj.concert.common.jackson.LocalDateTimeSerializer;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +25,10 @@ public class ConcertDTO {
     private Long id;
     private String title;
     private String imageName;
-    private String blrb;
+    private String blurb;
+
+    @JsonSerialize(contentUsing = LocalDateTimeSerializer.class)
+    @JsonDeserialize(contentUsing = LocalDateTimeDeserializer.class)
     private List<LocalDateTime> dates = new ArrayList<>();
     private List<PerformerDTO> performers = new ArrayList<>();
 
@@ -31,7 +39,7 @@ public class ConcertDTO {
         this.id = id;
         this.title = title;
         this.imageName = imageName;
-        this.blrb = blurb;
+        this.blurb = blurb;
     }
 
     public ConcertDTO(String title, String imageName) {
@@ -63,12 +71,12 @@ public class ConcertDTO {
         this.imageName = imageName;
     }
 
-    public String getBlurb() {
-        return blrb;
+    public String getblurb() {
+        return blurb;
     }
 
-    public void setBlurb(String blrb) {
-        this.blrb = blrb;
+    public void setblurb(String blurb) {
+        this.blurb = blurb;
     }
 
     public List<LocalDateTime> getDates() {
