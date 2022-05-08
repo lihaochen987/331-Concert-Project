@@ -287,6 +287,14 @@ public class ConcertResource {
         return Response.created(URI.create("/concert-service/bookings/" + booking.getId())).build();
     }
 
+    /**
+     * This function attempts to get seats with a given status for a given date. If successful data is passed with
+     * 200 status code. If any supplied parameters are invalid a 400 bad request code is returned.
+     * @param dateParam date for given seat
+     * @param status the status of a given seat (Any, Booked, Unbooked)
+     * @param auth the user auth token
+     * @return a JSON representation of all seats with given params
+     */
     @GET
     @Path("/seats/{localDateTime}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -316,6 +324,13 @@ public class ConcertResource {
         return Response.ok(seats).build();
     }
 
+    /**
+     * This function attempts to get a booking from a given Id. If the id is valid the concert will be returned.
+     * If the given id is invalid a 400 Bad Request error is returned
+     * @param auth the user auth token
+     * @param bookingId the unique id of a given booking
+     * @return a JSON representation of the booking
+     */
     @GET
     @Path("/bookings/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -345,7 +360,12 @@ public class ConcertResource {
         return Response.status(Response.Status.FORBIDDEN).build();
     }
 
-
+    /**
+     * This function attempts to retrieve all bookings for a user. If authentication fails a 401 unauthorised
+     * error code is returned. Otherwise bookings for a given user are returned.
+     * @param auth the user auth token
+     * @return a JSON representation of users bookings.
+     */
     @GET
     @Path("/bookings")
     @Produces(MediaType.APPLICATION_JSON)
@@ -372,6 +392,16 @@ public class ConcertResource {
         return Response.ok(bookingDTOS).build();
     }
 
+    /**
+     * This function subscribes a user to a given concert to be notified when a specific percentage of seats
+     * have been booked. If the user is not logged in a 401 unauthorised code is returned. If params are invalid
+     * a 400 bad request error code is returned. When the percentage of seats booked for given concert is
+     * greater than or equal to the supplied percentage this function will return a ConcertInfoNotification DTO
+     * @param sub the AsyncResponse object
+     * @param auth the user auth token
+     * @param subscriptionDTO subscription info
+     * @throws InterruptedException
+     */
     @POST
     @Path("/subscribe/concertInfo")
     @Consumes(MediaType.APPLICATION_JSON)
