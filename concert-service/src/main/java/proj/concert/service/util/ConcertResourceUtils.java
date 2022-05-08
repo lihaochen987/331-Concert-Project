@@ -21,6 +21,10 @@ import java.util.List;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
+/**
+ * Utility class that provides functions for ConcertResource. Stores a majority of the logic in the code and
+ * allows ConcertResource to be more readable and meaningful.
+ */
 public class ConcertResourceUtils {
 
     // User helper functions
