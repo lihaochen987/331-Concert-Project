@@ -1,4 +1,4 @@
-[## Team Members:
+## Team Members:
 * Hao Chen Li (lihaochen987)
 * Nathan Laing (nukkienuk)
 * Daena Govender (Daena-G)
