@@ -17,7 +17,7 @@ In addition, clients should be able to subscribe to information regarding concer
 
 A particular quality attribute that the service must satisfy is scalability. It is expected that the service will experience high load when concert tickets go on sale. 
 
-
+.
 Tasks
 ----------
 #### 1) Construct a domain model
